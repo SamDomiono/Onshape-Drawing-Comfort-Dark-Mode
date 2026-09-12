@@ -1,6 +1,7 @@
 (() => {
   "use strict";
   const VERSION = "0.1.1";
+  const REVISION = "sheet-resolver-1";
   const KEY = "__onshapeComfortExtension01";
   if (Object.prototype.hasOwnProperty.call(window, KEY)) return;
   const id = crypto.randomUUID().slice(0, 8);
@@ -37,25 +38,29 @@
     check(Array.isArray(scene?.children), "scene not ready");
     const candidates = scene.children.filter(m =>
       m?.material?.shader?.shaderName === "PaperOptimized");
-    check(candidates.length === 2 && candidates.every(m =>
-      rgb(m.material?.uniforms?.color)), "paper materials not ready or unexpected");
-    const sum = m => m.material.uniforms.color.reduce((a, b) => a + b, 0);
-    candidates.sort((a, b) => sum(b) - sum(a));
-    check(sum(candidates[0]) - sum(candidates[1]) >= 0.1, "ambiguous paper mesh");
-    const mesh = candidates[0], material = mesh.material;
+    const fillCandidates = candidates.filter(m => m?.xegltype === 4);
+    const outlineCandidates = candidates.filter(m => m?.xegltype === 1);
+    check(fillCandidates.length === 1,
+      `expected one PaperOptimized TRIANGLES sheet fill; found ${fillCandidates.length} among ${candidates.length} PaperOptimized objects`);
+    check(outlineCandidates.length >= 1,
+      `expected a PaperOptimized LINES sheet outline; found ${outlineCandidates.length}`);
+    const mesh = fillCandidates[0], material = mesh.material;
     const color = material.uniforms.color;
+    check(rgb(color), "sheet-fill color uniform not ready or unexpected");
     const snapshot = () => ({ ink: pal[7], paper: color.slice(),
       surround: paper.m_PaperBackColor });
     const original = snapshot();
     const target = { ink: 0x383D3F, paper: [216/255, 208/255, 188/255],
-      surround: 0x5A5750 }; // Surround channel order remains provisional.
+      surround: 0x5A5750 }; // Palette and surround integers use 0xBBGGRR packing.
     const identity = () => {
       const a = window.getXeApplication();
       return a === app && a?.m_XeDocuments?.[key] === doc &&
         doc.m_XeGsDevice === dev && dev.getPalette().getPalette() === pal &&
         doc.m_XeDatabase?.m_XeLayout === layout && layout.m_Paper === paper &&
         paper.m_Scene === scene && scene.children.includes(mesh) &&
-        mesh.material === material && material.uniforms.color === color;
+        mesh.xegltype === 4 && mesh.material === material &&
+        material.shader?.shaderName === "PaperOptimized" &&
+        material.uniforms.color === color;
     };
     const write = v => {
       pal[7] = v.ink;
@@ -74,7 +79,10 @@
         check(matches(values), "read-back mismatch");
         status = action === "APPLY" ? "applied" : "restored";
         log(`${action} OK`, { original, current: snapshot(),
-          surroundEncoding: "provisional integer 0x5A5750" });
+          packedColorEncoding: "0xBBGGRR",
+          sheetResolver: { shaderName: "PaperOptimized", xegltype: mesh.xegltype,
+            paperOptimizedObjects: candidates.length,
+            lineObjects: outlineCandidates.length } });
       } catch (error) {
         status = "failed";
         log(`${action} FAILED`, { reason: error.message });
@@ -102,7 +110,10 @@
     return { apply: () => change("APPLY", target),
       restore: () => change("RESTORE", original),
       report: () => log("STATE", { status, sameReferences: identity(),
-        original, current: snapshot() }) };
+        original, current: snapshot(),
+        sheetResolver: { shaderName: "PaperOptimized", xegltype: mesh.xegltype,
+          paperOptimizedObjects: candidates.length,
+          lineObjects: outlineCandidates.length } }) };
   }
 
   Object.defineProperty(window, KEY, { configurable: true, value: Object.freeze({
@@ -118,7 +129,8 @@
       else log("STATE", { status });
     }
   }) });
-  log("BOOT", { version: VERSION, timeOrigin: performance.timeOrigin, startupLimitMs: 60000 });
+  log("BOOT", { version: VERSION, revision: REVISION,
+    timeOrigin: performance.timeOrigin, startupLimitMs: 60000 });
   function attempt() {
     if (stopped) return;
     try { controller = resolve(); }
