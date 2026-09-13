@@ -20,7 +20,7 @@ Unified foreground is the accepted architecture. Independent dimension color is 
 Chrome loads the unpacked extension from:
 
 ```text
-C:\Users\swehr\Documents\ONSHAPE DWG THEME EXTENSION
+C:\Users\swehr\Documents\ONSHAPE-COMFORT-EXTENSION-LIVE
 ```
 
 The Git-controlled mirror and project documentation are stored in:
