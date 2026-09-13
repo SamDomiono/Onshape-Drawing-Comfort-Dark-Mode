@@ -1,8 +1,8 @@
 # Onshape Drawing Comfort Extension — Project State
 
-**Updated:** 2026-09-13  
-**Product authority:** HUMAN  
-**Manifest version:** 0.1.1  
+**Updated:** 2026-09-13
+**Product authority:** HUMAN
+**Manifest version:** 0.1.1
 **Engineering revision:** `named-presets-1`
 
 ## Product objective

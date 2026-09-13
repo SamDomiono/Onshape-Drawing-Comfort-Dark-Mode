@@ -1,6 +1,6 @@
 # Onshape Drawing Comfort Extension — Renderer Findings
 
-**Updated:** 2026-09-13  
+**Updated:** 2026-09-13
 **Current accepted revision:** `named-presets-1`
 
 ## Evidence language
