@@ -1,13 +1,36 @@
 (() => {
   "use strict";
   const VERSION = "0.1.1";
-  const REVISION = "theme-engine-1";
+  const REVISION = "named-presets-1";
   const KEY = "__onshapeComfortExtension01";
-  const DEFAULT_THEME = Object.freeze({
-    sheet: "#D8D0BC",
-    foreground: "#3F3D38",
-    surround: "#50575A"
+  const PRESETS = Object.freeze({
+    warm_drafting: Object.freeze({
+      label: "Warm Drafting",
+      theme: Object.freeze({
+        sheet: "#D8D0BC",
+        foreground: "#3F3D38",
+        surround: "#50575A"
+      })
+    }),
+    slate_graphite: Object.freeze({
+      label: "Slate Graphite",
+      theme: Object.freeze({
+        sheet: "#1D2023",
+        foreground: "#929AA4",
+        surround: "#42484E"
+      })
+    }),
+    industrial_cyanotype: Object.freeze({
+      label: "Industrial Cyanotype",
+      theme: Object.freeze({
+        sheet: "#0E2238",
+        foreground: "#8AA9C7",
+        surround: "#3A4148"
+      })
+    })
   });
+  const DEFAULT_PRESET = "warm_drafting";
+  const DEFAULT_THEME = PRESETS[DEFAULT_PRESET].theme;
   const THEME_KEYS = ["sheet", "foreground", "surround"];
   const HEX_COLOR = /^#[0-9A-F]{6}$/i;
   if (Object.prototype.hasOwnProperty.call(window, KEY)) return;
@@ -18,6 +41,7 @@
   const packed = n => Number.isInteger(n) && n >= 0 && n <= 0xFFFFFF;
   const rgb = c => Array.isArray(c) && c.length === 3 &&
     c.every(n => Number.isFinite(n) && n >= 0 && n <= 1);
+
   function normalizeTheme(theme) {
     check(theme && typeof theme === "object" && !Array.isArray(theme),
       "theme must be an object");
@@ -33,17 +57,31 @@
     }
     return Object.freeze(normalized);
   }
-  const hexBytes = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+
+  const hexBytes = hex => [1, 3, 5].map(i =>
+    parseInt(hex.slice(i, i + 2), 16));
   const packBgr = ([r, g, b]) => (b << 16) | (g << 8) | r;
+
   function encodeTheme(theme) {
     const normalized = normalizeTheme(theme);
     const sheet = hexBytes(normalized.sheet);
-    return { theme: normalized, values: {
-      ink: packBgr(hexBytes(normalized.foreground)),
-      paper: sheet.map(channel => channel / 255),
-      surround: packBgr(hexBytes(normalized.surround))
-    } };
+    return {
+      theme: normalized,
+      values: {
+        ink: packBgr(hexBytes(normalized.foreground)),
+        paper: sheet.map(channel => channel / 255),
+        surround: packBgr(hexBytes(normalized.surround))
+      }
+    };
   }
+
+  const listPresets = () =>
+    Object.entries(PRESETS).map(([presetId, preset]) => ({
+      id: presetId,
+      label: preset.label,
+      theme: { ...preset.theme }
+    }));
+
   let controller = null;
   let stopped = false;
   let timer = null;
@@ -57,140 +95,306 @@
     check(docs.length === 1, `expected one document; found ${docs.length}`);
     const [key, doc] = docs[0];
     const dev = doc?.m_XeGsDevice;
-    check(typeof dev?.invalidateScene === "function", "scene invalidation not ready");
+    check(typeof dev?.invalidateScene === "function",
+      "scene invalidation not ready");
     const pal = dev?.getPalette?.()?.getPalette?.();
     check(Array.isArray(pal) && pal.length === 256 && packed(pal[7]),
       "palette not ready or unexpected");
     const layout = doc?.m_XeDatabase?.m_XeLayout;
     const paper = layout?.m_Paper;
     check(paper?.m_ClassName === "XeLayoutPaper", "paper not ready");
-    const d = Object.getOwnPropertyDescriptor(paper, "m_PaperBackColor");
+    const d = Object.getOwnPropertyDescriptor(
+      paper,
+      "m_PaperBackColor"
+    );
     check(d && "value" in d && d.writable && packed(d.value),
       "surround field not ready or unexpected");
     const scene = paper.m_Scene;
     check(Array.isArray(scene?.children), "scene not ready");
+
     const candidates = scene.children.filter(m =>
       m?.material?.shader?.shaderName === "PaperOptimized");
     const fillCandidates = candidates.filter(m => m?.xegltype === 4);
     const outlineCandidates = candidates.filter(m => m?.xegltype === 1);
+
     check(fillCandidates.length === 1,
       `expected one PaperOptimized TRIANGLES sheet fill; found ${fillCandidates.length} among ${candidates.length} PaperOptimized objects`);
     check(outlineCandidates.length >= 1,
       `expected a PaperOptimized LINES sheet outline; found ${outlineCandidates.length}`);
-    const mesh = fillCandidates[0], material = mesh.material;
+
+    const mesh = fillCandidates[0];
+    const material = mesh.material;
     const color = material.uniforms.color;
-    check(rgb(color), "sheet-fill color uniform not ready or unexpected");
-    const snapshot = () => ({ ink: pal[7], paper: color.slice(),
-      surround: paper.m_PaperBackColor });
+    check(rgb(color),
+      "sheet-fill color uniform not ready or unexpected");
+
+    const snapshot = () => ({
+      ink: pal[7],
+      paper: color.slice(),
+      surround: paper.m_PaperBackColor
+    });
+
     const original = snapshot();
+    let activePreset = null;
     let activeTheme = null;
+
     const identity = () => {
       const a = window.getXeApplication();
-      return a === app && a?.m_XeDocuments?.[key] === doc &&
-        doc.m_XeGsDevice === dev && dev.getPalette().getPalette() === pal &&
-        doc.m_XeDatabase?.m_XeLayout === layout && layout.m_Paper === paper &&
-        paper.m_Scene === scene && scene.children.includes(mesh) &&
-        mesh.xegltype === 4 && mesh.material === material &&
+      return a === app &&
+        a?.m_XeDocuments?.[key] === doc &&
+        doc.m_XeGsDevice === dev &&
+        dev.getPalette().getPalette() === pal &&
+        doc.m_XeDatabase?.m_XeLayout === layout &&
+        layout.m_Paper === paper &&
+        paper.m_Scene === scene &&
+        scene.children.includes(mesh) &&
+        mesh.xegltype === 4 &&
+        mesh.material === material &&
         material.shader?.shaderName === "PaperOptimized" &&
         material.uniforms.color === color;
     };
-    const write = v => {
-      pal[7] = v.ink;
-      for (let i = 0; i < 3; i++) color[i] = v.paper[i];
-      paper.m_PaperBackColor = v.surround;
+
+    const write = values => {
+      pal[7] = values.ink;
+      for (let i = 0; i < 3; i++) {
+        color[i] = values.paper[i];
+      }
+      paper.m_PaperBackColor = values.surround;
     };
-    const matches = v => pal[7] === v.ink &&
-      v.paper.every((n, i) => color[i] === n) && paper.m_PaperBackColor === v.surround;
-    function change(action, values, theme) {
+
+    const matches = values =>
+      pal[7] === values.ink &&
+      values.paper.every((n, i) => color[i] === n) &&
+      paper.m_PaperBackColor === values.surround;
+
+    function change(action, values, theme, presetId = null) {
       let before;
       try {
         check(identity(), "renderer identity changed");
-        check(typeof dev.invalidateScene === "function", "scene invalidation unavailable");
+        check(typeof dev.invalidateScene === "function",
+          "scene invalidation unavailable");
         before = snapshot();
         write(values);
         check(matches(values), "read-back mismatch");
+
         status = action === "APPLY" ? "applied" : "restored";
+        activePreset = action === "APPLY" ? presetId : null;
         activeTheme = action === "APPLY" ? theme : null;
-        log(`${action} OK`, { activeTheme, original, current: snapshot(),
+
+        log(`${action} OK`, {
+          activePreset,
+          activeTheme,
+          original,
+          current: snapshot(),
           packedColorEncoding: "0xBBGGRR",
-          sheetResolver: { shaderName: "PaperOptimized", xegltype: mesh.xegltype,
+          sheetResolver: {
+            shaderName: "PaperOptimized",
+            xegltype: mesh.xegltype,
             paperOptimizedObjects: candidates.length,
-            lineObjects: outlineCandidates.length } });
+            lineObjects: outlineCandidates.length
+          }
+        });
       } catch (error) {
         status = "failed";
         log(`${action} FAILED`, { reason: error.message });
+
         if (before) {
           const errors = [];
-          const undo = fn => { try { fn(); } catch (e) { errors.push(e.message); } };
-          undo(() => { pal[7] = before.ink; });
-          for (let i = 0; i < 3; i++) undo(() => { color[i] = before.paper[i]; });
-          undo(() => { paper.m_PaperBackColor = before.surround; });
-          log("ROLLBACK", { verified: matches(before), errors });
+          const undo = fn => {
+            try {
+              fn();
+            } catch (error) {
+              errors.push(error.message);
+            }
+          };
+
+          undo(() => {
+            pal[7] = before.ink;
+          });
+          for (let i = 0; i < 3; i++) {
+            undo(() => {
+              color[i] = before.paper[i];
+            });
+          }
+          undo(() => {
+            paper.m_PaperBackColor = before.surround;
+          });
+
+          log("ROLLBACK", {
+            verified: matches(before),
+            errors
+          });
         }
         return false;
       }
+
       // A redraw failure does not undo already-verified color writes.
       try {
         dev.invalidateScene();
         log(`${action} REDRAW REQUESTED`);
         return true;
       } catch (error) {
-        log(`${action} REDRAW FAILED`, { reason: error.message,
-          colorsVerified: matches(values) });
+        log(`${action} REDRAW FAILED`, {
+          reason: error.message,
+          colorsVerified: matches(values)
+        });
         return false;
       }
     }
+
     function apply(theme = DEFAULT_THEME) {
       let encoded;
       try {
         encoded = encodeTheme(theme);
       } catch (error) {
-        log("APPLY REJECTED", { reason: error.message, status,
-          activeTheme, current: snapshot() });
+        log("APPLY REJECTED", {
+          reason: error.message,
+          status,
+          activePreset,
+          activeTheme,
+          current: snapshot()
+        });
         return false;
       }
       return change("APPLY", encoded.values, encoded.theme);
     }
-    return { apply,
+
+    function applyPreset(presetId) {
+      if (
+        typeof presetId !== "string" ||
+        !Object.prototype.hasOwnProperty.call(PRESETS, presetId)
+      ) {
+        log("PRESET REJECTED", {
+          reason:
+            `preset ID must be one of: ${Object.keys(PRESETS).join(", ")}`,
+          status,
+          activePreset,
+          activeTheme,
+          current: snapshot()
+        });
+        return false;
+      }
+
+      let encoded;
+      try {
+        encoded = encodeTheme(PRESETS[presetId].theme);
+      } catch (error) {
+        log("PRESET REJECTED", {
+          reason: error.message,
+          status,
+          activePreset,
+          activeTheme,
+          current: snapshot()
+        });
+        return false;
+      }
+
+      return change(
+        "APPLY",
+        encoded.values,
+        encoded.theme,
+        presetId
+      );
+    }
+
+    return {
+      apply,
+      applyPreset,
+      listPresets,
       restore: () => change("RESTORE", original, null),
-      report: () => log("STATE", { status, activeTheme,
-        sameReferences: identity(), original, current: snapshot(),
-        sheetResolver: { shaderName: "PaperOptimized", xegltype: mesh.xegltype,
+      report: () => log("STATE", {
+        status,
+        activePreset,
+        activeTheme,
+        sameReferences: identity(),
+        original,
+        current: snapshot(),
+        sheetResolver: {
+          shaderName: "PaperOptimized",
+          xegltype: mesh.xegltype,
           paperOptimizedObjects: candidates.length,
-          lineObjects: outlineCandidates.length } }) };
+          lineObjects: outlineCandidates.length
+        }
+      })
+    };
   }
 
-  Object.defineProperty(window, KEY, { configurable: true, value: Object.freeze({
-    apply(theme) {
-      if (controller) return controller.apply(theme);
-      log("APPLY REJECTED", { reason: "renderer not ready", status });
-      return false;
-    },
-    restore() {
-      stopped = true;
-      clearTimeout(timer);
-      if (controller) return controller.restore();
-      status = "stopped";
-      log("STOPPED; no colors applied");
-    },
-    report() {
-      if (controller) controller.report();
-      else log("STATE", { status });
-    }
-  }) });
-  log("BOOT", { version: VERSION, revision: REVISION,
-    timeOrigin: performance.timeOrigin, startupLimitMs: 60000 });
+  Object.defineProperty(window, KEY, {
+    configurable: true,
+    value: Object.freeze({
+      apply(theme) {
+        if (controller) {
+          return controller.apply(theme);
+        }
+        log("APPLY REJECTED", {
+          reason: "renderer not ready",
+          status
+        });
+        return false;
+      },
+
+      applyPreset(presetId) {
+        if (controller) {
+          return controller.applyPreset(presetId);
+        }
+        log("PRESET REJECTED", {
+          reason: "renderer not ready",
+          status
+        });
+        return false;
+      },
+
+      listPresets,
+
+      restore() {
+        stopped = true;
+        clearTimeout(timer);
+        if (controller) {
+          return controller.restore();
+        }
+        status = "stopped";
+        log("STOPPED; no colors applied");
+      },
+
+      report() {
+        if (controller) {
+          controller.report();
+        } else {
+          log("STATE", { status });
+        }
+      }
+    })
+  });
+
+  log("BOOT", {
+    version: VERSION,
+    revision: REVISION,
+    timeOrigin: performance.timeOrigin,
+    startupLimitMs: 60000
+  });
+
   function attempt() {
-    if (stopped) return;
-    try { controller = resolve(); }
-    catch (error) {
-      if (performance.now() - started >= 60000) {
-        status = "timeout";
-        log("ABORT; no colors applied", { reason: error.message });
-      } else timer = setTimeout(attempt, 500);
+    if (stopped) {
       return;
     }
-    controller.apply(); // No retries after a mutation attempt.
+
+    try {
+      controller = resolve();
+    } catch (error) {
+      if (performance.now() - started >= 60000) {
+        status = "timeout";
+        log("ABORT; no colors applied", {
+          reason: error.message
+        });
+      } else {
+        timer = setTimeout(attempt, 500);
+      }
+      return;
+    }
+
+    // No retries after a mutation attempt.
+    controller.applyPreset(DEFAULT_PRESET);
   }
+
   attempt();
 })();
