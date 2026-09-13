@@ -1,8 +1,15 @@
 (() => {
   "use strict";
   const VERSION = "0.1.1";
-  const REVISION = "sheet-resolver-1";
+  const REVISION = "theme-engine-1";
   const KEY = "__onshapeComfortExtension01";
+  const DEFAULT_THEME = Object.freeze({
+    sheet: "#D8D0BC",
+    foreground: "#3F3D38",
+    surround: "#50575A"
+  });
+  const THEME_KEYS = ["sheet", "foreground", "surround"];
+  const HEX_COLOR = /^#[0-9A-F]{6}$/i;
   if (Object.prototype.hasOwnProperty.call(window, KEY)) return;
   const id = crypto.randomUUID().slice(0, 8);
   const log = (message, data = {}) =>
@@ -11,6 +18,32 @@
   const packed = n => Number.isInteger(n) && n >= 0 && n <= 0xFFFFFF;
   const rgb = c => Array.isArray(c) && c.length === 3 &&
     c.every(n => Number.isFinite(n) && n >= 0 && n <= 1);
+  function normalizeTheme(theme) {
+    check(theme && typeof theme === "object" && !Array.isArray(theme),
+      "theme must be an object");
+    const keys = Object.keys(theme);
+    check(keys.length === THEME_KEYS.length &&
+      THEME_KEYS.every(key => Object.prototype.hasOwnProperty.call(theme, key)),
+      "theme must contain exactly: sheet, foreground, surround");
+    const normalized = {};
+    for (const key of THEME_KEYS) {
+      check(typeof theme[key] === "string" && HEX_COLOR.test(theme[key]),
+        `${key} must be a #RRGGBB color`);
+      normalized[key] = theme[key].toUpperCase();
+    }
+    return Object.freeze(normalized);
+  }
+  const hexBytes = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+  const packBgr = ([r, g, b]) => (b << 16) | (g << 8) | r;
+  function encodeTheme(theme) {
+    const normalized = normalizeTheme(theme);
+    const sheet = hexBytes(normalized.sheet);
+    return { theme: normalized, values: {
+      ink: packBgr(hexBytes(normalized.foreground)),
+      paper: sheet.map(channel => channel / 255),
+      surround: packBgr(hexBytes(normalized.surround))
+    } };
+  }
   let controller = null;
   let stopped = false;
   let timer = null;
@@ -50,8 +83,7 @@
     const snapshot = () => ({ ink: pal[7], paper: color.slice(),
       surround: paper.m_PaperBackColor });
     const original = snapshot();
-    const target = { ink: 0x383D3F, paper: [216/255, 208/255, 188/255],
-      surround: 0x5A5750 }; // Palette and surround integers use 0xBBGGRR packing.
+    let activeTheme = null;
     const identity = () => {
       const a = window.getXeApplication();
       return a === app && a?.m_XeDocuments?.[key] === doc &&
@@ -69,7 +101,7 @@
     };
     const matches = v => pal[7] === v.ink &&
       v.paper.every((n, i) => color[i] === n) && paper.m_PaperBackColor === v.surround;
-    function change(action, values) {
+    function change(action, values, theme) {
       let before;
       try {
         check(identity(), "renderer identity changed");
@@ -78,7 +110,8 @@
         write(values);
         check(matches(values), "read-back mismatch");
         status = action === "APPLY" ? "applied" : "restored";
-        log(`${action} OK`, { original, current: snapshot(),
+        activeTheme = action === "APPLY" ? theme : null;
+        log(`${action} OK`, { activeTheme, original, current: snapshot(),
           packedColorEncoding: "0xBBGGRR",
           sheetResolver: { shaderName: "PaperOptimized", xegltype: mesh.xegltype,
             paperOptimizedObjects: candidates.length,
@@ -107,16 +140,32 @@
         return false;
       }
     }
-    return { apply: () => change("APPLY", target),
-      restore: () => change("RESTORE", original),
-      report: () => log("STATE", { status, sameReferences: identity(),
-        original, current: snapshot(),
+    function apply(theme = DEFAULT_THEME) {
+      let encoded;
+      try {
+        encoded = encodeTheme(theme);
+      } catch (error) {
+        log("APPLY REJECTED", { reason: error.message, status,
+          activeTheme, current: snapshot() });
+        return false;
+      }
+      return change("APPLY", encoded.values, encoded.theme);
+    }
+    return { apply,
+      restore: () => change("RESTORE", original, null),
+      report: () => log("STATE", { status, activeTheme,
+        sameReferences: identity(), original, current: snapshot(),
         sheetResolver: { shaderName: "PaperOptimized", xegltype: mesh.xegltype,
           paperOptimizedObjects: candidates.length,
           lineObjects: outlineCandidates.length } }) };
   }
 
   Object.defineProperty(window, KEY, { configurable: true, value: Object.freeze({
+    apply(theme) {
+      if (controller) return controller.apply(theme);
+      log("APPLY REJECTED", { reason: "renderer not ready", status });
+      return false;
+    },
     restore() {
       stopped = true;
       clearTimeout(timer);
