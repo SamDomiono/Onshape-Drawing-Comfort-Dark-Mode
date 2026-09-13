@@ -1,7 +1,8 @@
 # Onshape Drawing Comfort Extension — Renderer Findings
 
 **Updated:** 2026-09-13
-**Current accepted revision:** `named-presets-1`
+**Current accepted MAIN revision:** `persistence-main-1`
+**Current accepted bridge revision:** `persistence-bridge-1`
 
 ## Evidence language
 
@@ -19,7 +20,9 @@ sheet fill
 + surround behind the sheet
 ```
 
-These controls do not share one renderer-native representation. Standard `#RRGGBB` is the public boundary; conversion occurs inside `theme.js`.
+These controls do not share one renderer-native representation. Standard `#RRGGBB` is the public boundary; conversion occurs inside MAIN-world `theme.js`.
+
+The persistence increment did not change any accepted renderer resolver, representation, mutation, verification, rollback, or redraw path.
 
 ## Surround
 
@@ -153,6 +156,40 @@ surround: 14474460
 
 All tested preset transitions and RESTORE retained `sameReferences:true`.
 
+## Persistence orchestration boundary
+
+Renderer mutation remains entirely in MAIN-world `theme.js`. Isolated-world `bridge.js` cannot and does not traverse the Onshape renderer. Its responsibilities are limited to validating and storing a stable preset ID and relaying that setting to the MAIN world.
+
+**ESTABLISHED startup path:**
+
+```text
+chrome.storage.local selectedPreset
+→ isolated-world bridge validation
+→ versioned same-window message
+→ MAIN-world desiredPreset
+→ renderer-ready application through applyPreset()
+```
+
+The MAIN world waits up to 1000 ms for settings, retains settings that arrive before renderer resolution, and falls back to Warm Drafting only if no valid settings message arrives. Duplicate startup messages are accepted at the protocol boundary but deduplicated before effective renderer mutation.
+
+The message protocol validates channel, protocol version, direction, type, `event.source === window`, same origin, and the exact preset-ID allowlist. Because page scripts can observe or imitate DOM messages, this is not a privileged security boundary. It is sufficient for the non-sensitive local preset selection transported here.
+
+## Persistence live validation
+
+**ESTABLISHED by logs, storage inspection, and HUMAN's visual observation:**
+
+- First-run missing storage initialized to `warm_drafting`.
+- Duplicate first-run bridge messages resulted in one effective Warm application.
+- Editing `selectedPreset` to `slate_graphite` propagated immediately and produced exact Slate renderer readback.
+- Closing and reopening the Onshape tab loaded Slate from storage and produced one effective Slate application.
+- The persisted Slate startup contained no intervening Warm application and no settings fallback.
+- The native-white interval before the renderer became available was less than brief and only detectable while watching for it.
+- Direct storage corruption with `not_a_real_preset` was detected and repaired to `warm_drafting`.
+- The repaired value propagated through the standard settings path and produced exact Warm renderer readback.
+- DevTools could temporarily show no extension storage after page reload; refreshing the Application panel restored the tree without storage loss.
+
+These findings establish persistence orchestration without changing the accepted renderer architecture.
+
 ## Selection and active dimensions
 
 **ESTABLISHED by HUMAN:**
@@ -176,10 +213,8 @@ Permissions policy violation: unload is not allowed in this document.
 [Violation] setTimeout handler took approximately 50–64 ms
 ```
 
-The 3Dconnexion request is Onshape checking for optional local SpaceMouse integration. The remaining lines are browser/platform warnings or isolated performance notices. None correlated with a renderer mutation failure.
+## Boundaries
 
-## Boundaries for future work
+Do not restart broad searches for independent dimension color, highlight control, title-block rendering, persistent white fields, navbar styling, or alternative DOM/CSS/SVG renderer strategies during the preset UI increment.
 
-Do not generalize one renderer structure's encoding to another. Do not restart broad searches for independent dimension color, highlight control, title-block rendering, or navbar styling during persistence work.
-
-Reopen renderer investigation only when a specific new product requirement or contradictory current-runtime observation supplies a bounded question.
+Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.
