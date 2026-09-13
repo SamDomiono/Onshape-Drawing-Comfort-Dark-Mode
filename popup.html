@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Drawing comfort</title>
+    <link rel="stylesheet" href="popup.css">
+    <script src="popup.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Onshape drawings</p>
+        <h1>Drawing comfort</h1>
+        <p class="lede">Choose a sheet palette. Applied to open drawing tabs.</p>
+      </header>
+
+      <form>
+        <fieldset id="preset-options" disabled>
+          <legend>Drawing palette</legend>
+
+          <label class="preset-card warm-drafting">
+            <input type="radio" name="preset" value="warm_drafting">
+            <span class="thumbnail" aria-hidden="true">
+              <svg viewBox="0 0 120 86" focusable="false">
+                <rect class="sheet" x="7" y="6" width="106" height="74" rx="2"></rect>
+                <path class="ink thin" d="M10 61.5h100M10 67.5h100M10 73.5h100M74 61.5v18M92 61.5v18"></path>
+                <path class="ink part" d="M38 27l8-7h28l8 7 12 2v17l-12 2-8 7H46l-8-7-12-2V29zM46 20l5 8v19l-5 8M74 20l-5 8v19l5 8"></path>
+                <path class="ink thin" d="M26 16h68M26 13v7M94 13v7M22 24v28M19 24h7M19 52h7M47 24h26M47 51h26"></path>
+                <path class="ink dim" d="M30 16l4-2v4zM90 16l-4-2v4zM22 28l-2 4h4zM22 48l-2-4h4z"></path>
+                <circle class="ink" cx="51" cy="31" r="2.5"></circle>
+                <circle class="ink" cx="69" cy="44" r="2.5"></circle>
+              </svg>
+            </span>
+            <span class="preset-copy">
+              <span class="preset-name">Warm Drafting</span>
+              <span class="preset-blurb">Paper tan · walnut ink</span>
+            </span>
+            <span class="selection-mark" aria-hidden="true"></span>
+          </label>
+
+          <label class="preset-card slate-graphite">
+            <input type="radio" name="preset" value="slate_graphite">
+            <span class="thumbnail" aria-hidden="true">
+              <svg viewBox="0 0 120 86" focusable="false">
+                <rect class="sheet" x="7" y="6" width="106" height="74" rx="2"></rect>
+                <path class="ink thin" d="M10 61.5h100M10 67.5h100M10 73.5h100M74 61.5v18M92 61.5v18"></path>
+                <path class="ink part" d="M38 27l8-7h28l8 7 12 2v17l-12 2-8 7H46l-8-7-12-2V29zM46 20l5 8v19l-5 8M74 20l-5 8v19l5 8"></path>
+                <path class="ink thin" d="M26 16h68M26 13v7M94 13v7M22 24v28M19 24h7M19 52h7M47 24h26M47 51h26"></path>
+                <path class="ink dim" d="M30 16l4-2v4zM90 16l-4-2v4zM22 28l-2 4h4zM22 48l-2-4h4z"></path>
+                <circle class="ink" cx="51" cy="31" r="2.5"></circle>
+                <circle class="ink" cx="69" cy="44" r="2.5"></circle>
+              </svg>
+            </span>
+            <span class="preset-copy">
+              <span class="preset-name">Slate Graphite</span>
+              <span class="preset-blurb">Cool graphite · low glare</span>
+            </span>
+            <span class="selection-mark" aria-hidden="true"></span>
+          </label>
+
+          <label class="preset-card industrial-cyanotype">
+            <input type="radio" name="preset" value="industrial_cyanotype">
+            <span class="thumbnail" aria-hidden="true">
+              <svg viewBox="0 0 120 86" focusable="false">
+                <rect class="sheet" x="7" y="6" width="106" height="74" rx="2"></rect>
+                <path class="ink thin" d="M10 61.5h100M10 67.5h100M10 73.5h100M74 61.5v18M92 61.5v18"></path>
+                <path class="ink part" d="M38 27l8-7h28l8 7 12 2v17l-12 2-8 7H46l-8-7-12-2V29zM46 20l5 8v19l-5 8M74 20l-5 8v19l5 8"></path>
+                <path class="ink thin" d="M26 16h68M26 13v7M94 13v7M22 24v28M19 24h7M19 52h7M47 24h26M47 51h26"></path>
+                <path class="ink dim" d="M30 16l4-2v4zM90 16l-4-2v4zM22 28l-2 4h4zM22 48l-2-4h4z"></path>
+                <circle class="ink" cx="51" cy="31" r="2.5"></circle>
+                <circle class="ink" cx="69" cy="44" r="2.5"></circle>
+              </svg>
+            </span>
+            <span class="preset-copy">
+              <span class="preset-name">Industrial Cyanotype</span>
+              <span class="preset-blurb">Blueprint night · steel ink</span>
+            </span>
+            <span class="selection-mark" aria-hidden="true"></span>
+          </label>
+        </fieldset>
+      </form>
+    </main>
+
+    <footer id="status" role="status" aria-live="polite">
+      <span class="status-copy">
+        <span id="status-lead">Reading saved preset…</span>
+        <strong id="saved-name"></strong>
+      </span>
+      <span class="footer-hint">applies instantly</span>
+    </footer>
+  </body>
+</html>
