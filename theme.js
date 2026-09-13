@@ -1,8 +1,11 @@
 (() => {
   "use strict";
   const VERSION = "0.1.1";
-  const REVISION = "named-presets-1";
+  const REVISION = "persistence-main-1";
   const KEY = "__onshapeComfortExtension01";
+  const CHANNEL = "onshape-comfort-extension";
+  const PROTOCOL = 1;
+  const SETTINGS_WAIT_MS = 1000;
   const PRESETS = Object.freeze({
     warm_drafting: Object.freeze({
       label: "Warm Drafting",
@@ -86,7 +89,46 @@
   let stopped = false;
   let timer = null;
   let status = "waiting";
+  let desiredPreset = null;
+  let lastAttemptedPreset = null;
+  let settingsStatus = "waiting";
+  let settingsTimer = null;
   const started = performance.now();
+
+  function applyDesiredPreset(reason) {
+    if (!controller || desiredPreset === null ||
+        lastAttemptedPreset === desiredPreset) return;
+    lastAttemptedPreset = desiredPreset;
+    const applied = controller.applyPreset(desiredPreset);
+    log("SETTINGS APPLY", { reason, desiredPreset, applied });
+  }
+
+  function receiveSettings(presetId, reason) {
+    if (typeof presetId !== "string" ||
+        !Object.prototype.hasOwnProperty.call(PRESETS, presetId)) {
+      log("SETTINGS REJECTED", {
+        reason: "unknown preset ID",
+        received: presetId
+      });
+      return;
+    }
+    clearTimeout(settingsTimer);
+    settingsStatus = "received";
+    desiredPreset = presetId;
+    log("SETTINGS RECEIVED", { desiredPreset, reason });
+    applyDesiredPreset("settings-received");
+  }
+
+  window.addEventListener("message", event => {
+    const data = event.data;
+    if (event.source !== window || event.origin !== location.origin ||
+        !data || typeof data !== "object" ||
+        Array.isArray(data) || data.channel !== CHANNEL ||
+        data.protocol !== PROTOCOL ||
+        data.direction !== "isolated-to-main" ||
+        data.type !== "settings") return;
+    receiveSettings(data.selectedPreset, data.reason);
+  });
 
   function resolve() {
     check(typeof window.getXeApplication === "function", "engine not ready");
@@ -349,6 +391,8 @@
       restore() {
         stopped = true;
         clearTimeout(timer);
+        clearTimeout(settingsTimer);
+        lastAttemptedPreset = null;
         if (controller) {
           return controller.restore();
         }
@@ -357,6 +401,11 @@
       },
 
       report() {
+        log("BRIDGE STATE", {
+          settingsStatus,
+          desiredPreset,
+          lastAttemptedPreset
+        });
         if (controller) {
           controller.report();
         } else {
@@ -372,6 +421,20 @@
     timeOrigin: performance.timeOrigin,
     startupLimitMs: 60000
   });
+  window.postMessage({
+    channel: CHANNEL,
+    protocol: PROTOCOL,
+    direction: "main-to-isolated",
+    type: "ready"
+  }, location.origin);
+  log("BRIDGE READY SENT", { settingsWaitMs: SETTINGS_WAIT_MS });
+  settingsTimer = setTimeout(() => {
+    if (desiredPreset !== null) return;
+    settingsStatus = "fallback";
+    desiredPreset = DEFAULT_PRESET;
+    log("SETTINGS FALLBACK", { desiredPreset });
+    applyDesiredPreset("settings-timeout");
+  }, SETTINGS_WAIT_MS);
 
   function attempt() {
     if (stopped) {
@@ -392,8 +455,8 @@
       return;
     }
 
-    // No retries after a mutation attempt.
-    controller.applyPreset(DEFAULT_PRESET);
+    log("RENDERER READY", { settingsStatus, desiredPreset });
+    applyDesiredPreset("renderer-ready"); // No retries after a mutation attempt.
   }
 
   attempt();
