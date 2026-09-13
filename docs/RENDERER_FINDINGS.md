@@ -3,6 +3,7 @@
 **Updated:** 2026-09-13
 **Current accepted MAIN revision:** `persistence-main-1`
 **Current accepted bridge revision:** `persistence-bridge-1`
+**Current accepted popup revision:** `preset-popup-2`
 
 ## Evidence language
 
@@ -22,7 +23,7 @@ sheet fill
 
 These controls do not share one renderer-native representation. Standard `#RRGGBB` is the public boundary; conversion occurs inside MAIN-world `theme.js`.
 
-The persistence increment did not change any accepted renderer resolver, representation, mutation, verification, rollback, or redraw path.
+The persistence and popup increments did not change any accepted renderer resolver, representation, mutation, verification, rollback, or redraw path.
 
 ## Surround
 
@@ -158,7 +159,7 @@ All tested preset transitions and RESTORE retained `sameReferences:true`.
 
 ## Persistence orchestration boundary
 
-Renderer mutation remains entirely in MAIN-world `theme.js`. Isolated-world `bridge.js` cannot and does not traverse the Onshape renderer. Its responsibilities are limited to validating and storing a stable preset ID and relaying that setting to the MAIN world.
+Renderer mutation remains entirely in MAIN-world `theme.js`. Isolated-world `bridge.js` cannot and does not traverse the Onshape renderer. Its responsibilities are limited to validating and storing a stable preset ID and relaying that setting to the MAIN world. Extension-context `popup.js` is an additional validated writer of the same `selectedPreset` storage key; it does not message or traverse drawing frames.
 
 **ESTABLISHED startup path:**
 
@@ -190,6 +191,20 @@ The message protocol validates channel, protocol version, direction, type, `even
 
 These findings establish persistence orchestration without changing the accepted renderer architecture.
 
+## Popup-path live validation
+
+**ESTABLISHED by source, stored-value behavior, and HUMAN's visual observation:**
+
+- `preset-popup-2` presents exactly the three accepted stable preset IDs.
+- Opening the popup reflects the stored selection.
+- Selecting each card writes the selected stable ID to `chrome.storage.local.selectedPreset`.
+- Existing bridge instances observe that change and produce an immediate live drawing update without reload, zoom, pan, or direct popup-to-renderer communication.
+- Warm Drafting, Slate Graphite, and Industrial Cyanotype each displayed consistently between the popup preview and the active drawing.
+- The popup footer and selection indicator tracked all three choices.
+- The completed popup and icon increment left `bridge.js` and `theme.js` byte-identical to the accepted persistence revisions.
+
+The toolbar icon and popup drawing thumbnails are extension UI assets. Their use of accepted palette colors does not make them renderer evidence or a second theme-definition path; `theme.js` remains authoritative for renderer mutation.
+
 ## Selection and active dimensions
 
 **ESTABLISHED by HUMAN:**
@@ -215,6 +230,6 @@ Permissions policy violation: unload is not allowed in this document.
 
 ## Boundaries
 
-Do not restart broad searches for independent dimension color, highlight control, title-block rendering, persistent white fields, navbar styling, or alternative DOM/CSS/SVG renderer strategies during the preset UI increment.
+Do not restart broad searches for independent dimension color, highlight control, title-block rendering, persistent white fields, navbar styling, or alternative DOM/CSS/SVG renderer strategies merely because the preset UI is complete.
 
 Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.

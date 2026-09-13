@@ -5,6 +5,7 @@
 **Manifest version:** 0.1.1
 **MAIN-world revision:** `persistence-main-1`
 **Isolated-world revision:** `persistence-bridge-1`
+**Popup revision:** `preset-popup-2`
 
 ## Product objective
 
@@ -48,29 +49,56 @@ Do not copy the Git mirror over a live candidate before acceptance; that previou
 
 ```text
 branch: master
-commit: 2e72ae9e5912daa4e06cb29be99bfb32db36fbb3
-message: Add persistent preset bridge
+commit: c54141024aab40f4ec57d575870db32cb1eb9a32
+message: Add preset selection popup and icons
 working tree after commit: clean
 ```
 
-Accepted live/source hashes before the commit:
+Accepted live/source hashes at the commit:
 
 ```text
 manifest.json
-378634A17CB92ED285315A6C84A31EA5FD22385B2E93384867580628E8574178
+1AA0A67CD8BAF2A53E1FFC289441A3206DF584E128A6B1C217DD55E3D1363D9D
 
 bridge.js
 ABAB436B10B65E5463F30B40C42BDCFB5BB1DB75848F39CDAC1AD857D5A08E97
 
 theme.js
 5EF3FC50283AEE8D660A4A0D018C821682AF061CFDE1A1D217BD1149652D88BA
+
+popup.html
+24519025C2132D0D95C11B551FF8A5A5EBF6EBB5B6E745647DA16D9DB39A15EE
+
+popup.css
+5A04E4F61FFB8CEC6190DB1FA98BEDD3B28213363F2115AB56C5AADC91FC0ED9
+
+popup.js
+16EA6F89B893286BE17E03B406567E26F4A697240EF54D6801ABF1B190689F94
+
+icons\icon16.png
+A6B7FBB97A23EB2AE2B4ACC3611105F4DEA9B9D01CA6ECE79304863473C50F2A
+
+icons\icon32.png
+363E083FC33B8A7AB7AE9C4A8A53E834C9F3AE6CB61FEA22D07CA7E330068A30
+
+icons\icon48.png
+BB71828579596077104E8028244D1D6082EBE4379FEEB51BA04807F11A5D3F49
+
+icons\icon128.png
+8B44812AA6C848430C275DF4C0C5BAFE37178F2B178138ECF8595D0405652B3D
+
+icons\icon-master.svg
+BF13AA3C45CE2B6D01970745DA034C86AA03B544E0858148EEC16BE32408F524
+
+icons\icon-small.svg
+D1E1B0395E091D95110DE81A4F9CDFBF3BDD42F0EFD0BC29E39AF2B7D5AA2D4F
 ```
 
-All three live files matched their Git-mirror copies byte for byte before staging. Git warned that the working copy of `bridge.js` would be normalized from CRLF to LF when Git next touched it; the staged whitespace check passed, the expected staged file set was exact, and the commit completed successfully.
+All twelve authoritative live files matched their Git-mirror copies byte for byte before the UI commit. The exact ten-file UI and icon set was staged, `git diff --cached --check` passed, the commit completed successfully, the temporary development directory was removed, and the worktree was clean at `c541410`.
 
 ## Manifest and execution architecture
 
-The extension remains Manifest V3 version 0.1.1 with minimum Chrome 111. It now requests the `storage` permission and loads two scripts at `document_idle` in matching Onshape production drawing-editor frames with `all_frames: true`:
+The extension remains Manifest V3 version 0.1.1 with minimum Chrome 111. It requests the `storage` permission, declares a toolbar action with `popup.html`, provides 16/32/48/128 px icons, and loads two scripts at `document_idle` in matching Onshape production drawing-editor frames with `all_frames: true`:
 
 ```text
 bridge.js → ISOLATED world
@@ -185,6 +213,22 @@ The MAIN-world engine waits up to 1000 ms for settings before falling back to Wa
 
 The MAIN-world report now includes bridge state such as `settingsStatus`, `desiredPreset`, and `lastAttemptedPreset` in addition to renderer state.
 
+## Preset selection popup
+
+The accepted extension-context popup is implemented by:
+
+```text
+popup.html
+popup.css
+popup.js → preset-popup-2
+```
+
+It presents the three stable preset IDs as native radio controls inside full-card labels. Each card contains a code-native miniature drawing preview using the exact accepted sheet, foreground, and surround colors. The popup reads and writes only `chrome.storage.local.selectedPreset`, mirrors storage changes while open, repairs missing or invalid values to `warm_drafting`, reports storage failures visibly, and skips a redundant write when the active preset is selected again.
+
+The popup does not query tabs, message drawing frames, traverse Onshape objects, or duplicate renderer orchestration. Existing `bridge.js` instances observe its storage write and relay the allowlisted preset ID through the accepted path.
+
+The accepted visual design is an approximately 400 × 563 px charcoal panel with three 112 px preview cards, a saved-state footer, and no remote resources or inline script. The split drafting-sheet icon family uses progressively simplified vector geometry at small sizes; the manifest consumes PNG assets at 16, 32, 48, and 128 px while retaining editable SVG masters.
+
 ## Accepted runtime validation
 
 Named-preset validation remains accepted:
@@ -209,25 +253,32 @@ Persistence validation in fresh and recreated drawing realms established:
 - the stored value after recovery was `warm_drafting`;
 - the visible native-white startup frame was less than brief and only noticeable when watched closely.
 
+Popup and icon acceptance established:
+
+- the stored preset was selected correctly when the popup opened;
+- all three full cards changed the active drawing immediately through the existing storage path;
+- the footer and selection indicator followed Warm Drafting, Slate Graphite, and Industrial Cyanotype;
+- the popup proportions, previews, behavior, and overall visual design were accepted by HUMAN;
+- the toolbar icon deployed after Chrome restart and remained plainly visible against HUMAN's dark Chrome theme;
+- the split warm/cyan field remained the primary icon signal at toolbar size;
+- `bridge.js` and `theme.js` remained byte-identical to the persistence baseline.
+
 The Extension storage tree may temporarily appear empty in DevTools after a page reload. Refreshing the DevTools Application view restores discovery; this did not indicate lost extension storage.
 
 ## Current phase and next gate
 
-Named presets and persistent preset selection are complete and committed. Documentation reconciliation and a fresh-context branch handoff are the next gates.
+Named presets, persistent preset selection, the preset-selection popup, and the split drafting-sheet icon family are complete and committed. Documentation reconciliation against `c541410` is the current gate.
 
-After those gates, begin the small preset-selection UI. Do not begin navbar, title-block, persistent white-field, highlight, or custom-color work as part of the UI increment unless HUMAN explicitly expands its acceptance criteria.
-
-The preset UI should use `chrome.storage.local` through extension-context code and preserve the accepted bridge/MAIN-world separation. It should select among the three approved preset IDs, show the stored selection, reject unknown values, and update active matching drawings through the existing storage-change path.
+After documentation is committed, run the planned bounded lifecycle regression across reloads and multiple drawing tabs or create a fresh-context handoff before beginning it. Navbar/title-bar work remains the next product expansion after lifecycle confidence; title-block, persistent white-field, highlight, independent-dimension-color, and custom-color work remain outside the completed popup increment.
 
 ## Product backlog and boundaries
 
 Planned order:
 
-1. Reconcile documentation and create branch handoff.
-2. Implement and validate a small preset-selection UI.
-3. Run lifecycle regression across reloads and multiple drawing tabs.
-4. Pursue Onshape navigation/title-bar theming.
-5. Consider optional custom-color UI.
+1. Reconcile documentation against the accepted popup/icon commit.
+2. Run lifecycle regression across reloads and multiple drawing tabs.
+3. Pursue Onshape navigation/title-bar theming.
+4. Consider optional custom-color UI.
 
 Optional backlog:
 
@@ -236,7 +287,7 @@ Optional backlog:
 - selection/highlight tuning;
 - independent dimension color only if a new product need justifies its complexity.
 
-The relationship between title-block/selectable-field behavior and selection-highlight controls is plausible but not established. These items remain optional and must not block the preset UI.
+The relationship between title-block/selectable-field behavior and selection-highlight controls is plausible but not established. These items remain optional and must not reopen the accepted popup increment.
 
 ## Remaining unknowns and technical debt
 
