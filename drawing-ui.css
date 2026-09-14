@@ -1,7 +1,7 @@
 /*
  * Onshape Drawing Comfort Extension
  * Drawing chrome layer
- * Revision: drawing-ui-css-2
+ * Revision: drawing-ui-css-3
  *
  * Owns legacy Drawing-editor DOM/CSS only.
  * Does NOT own WebGL renderer colors.
@@ -583,4 +583,39 @@ ul.nav-tabs > li > a {
 [data-object-name="OsInspectionPanelFlyout"]
 [data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-thumb:hover {
   background: var(--oce-ui-scroll-thumb-hover) !important;
+}
+/* ==========================================================
+   ICON FILTER EXCEPTIONS
+
+   Preserve native internal detail in selected multitone assets.
+   Buttons, backgrounds, borders, and interaction states remain
+   owned by the surrounding Drawing UI theme rules.
+   ========================================================== */
+
+/* Top-toolbar view/update assets with meaningful native detail. */
+
+.xenon-menu.xenon-toolbar.navbar.active-toolbar
+.toolbar-button[data-object-name="button_ID_DRAWINGVIEW"] > img,
+
+.xenon-menu.xenon-toolbar.navbar.active-toolbar
+.toolbar-button[data-object-name="button_ID_PROJECTEDVIEW"] > img,
+
+.xenon-menu.xenon-toolbar.navbar.active-toolbar
+.toolbar-button[data-object-name="button_ID_AUXILIARYVIEW"] > img,
+
+.xenon-menu.xenon-toolbar.navbar.active-toolbar
+.toolbar-button[data-object-name="button_ID_OSBROKENOUTSECTIONVIEW"] > img,
+
+.xenon-menu.xenon-toolbar.navbar.active-toolbar
+.toolbar-button[data-object-name="button_ID_OSUPDATE"] > img {
+  filter: none !important;
+}
+
+/* Four main right-side flyout icons; Measure remains filtered. */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="flyoutContainerRow"]
+.toggleButtonContainer
+.btn.toggleBtn.with-icon > img {
+  filter: none !important;
 }
