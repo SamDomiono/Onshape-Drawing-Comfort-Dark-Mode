@@ -1,6 +1,6 @@
-# Onshape Drawing Comfort Extension — Project State
+﻿# Onshape Drawing Comfort Extension â€” Project State
 
-**Updated:** 2026-09-13
+**Updated:** 2026-09-14
 **Product authority:** HUMAN
 **Manifest version:** 0.1.1
 **MAIN-world revision:** `persistence-main-1`
@@ -35,12 +35,12 @@ The established workflow is:
 
 ```text
 back up current files
-→ edit the Chrome-loaded Documents copy
-→ reload the extension and recreate the drawing realm
-→ perform bounded live acceptance tests
-→ copy the accepted live files to C:\AI_WORK
-→ verify live/Git hashes match
-→ commit the synchronized Git copy
+â†’ edit the Chrome-loaded Documents copy
+â†’ reload the extension and recreate the drawing realm
+â†’ perform bounded live acceptance tests
+â†’ copy the accepted live files to C:\AI_WORK
+â†’ verify live/Git hashes match
+â†’ commit the synchronized Git copy
 ```
 
 Do not copy the Git mirror over a live candidate before acceptance; that previously replaced a new candidate with the older validated revision.
@@ -49,9 +49,11 @@ Do not copy the Git mirror over a live candidate before acceptance; that previou
 
 ```text
 branch: master
-commit: c54141024aab40f4ec57d575870db32cb1eb9a32
-message: Add preset selection popup and icons
-working tree after commit: clean
+current HEAD: 6d4cba687e4394d8bbaab86dbaeafb95eb515cea
+current HEAD message: Document preset popup and icons
+accepted implementation commit: c54141024aab40f4ec57d575870db32cb1eb9a32
+accepted implementation message: Add preset selection popup and icons
+last verified worktree: clean
 ```
 
 Accepted live/source hashes at the commit:
@@ -96,13 +98,15 @@ D1E1B0395E091D95110DE81A4F9CDFBF3BDD42F0EFD0BC29E39AF2B7D5AA2D4F
 
 All twelve authoritative live files matched their Git-mirror copies byte for byte before the UI commit. The exact ten-file UI and icon set was staged, `git diff --cached --check` passed, the commit completed successfully, the temporary development directory was removed, and the worktree was clean at `c541410`.
 
+The popup/icon documentation reconciliation was subsequently committed at `6d4cba6`. A later read-only commissioning check established branch `master`, exact HEAD `6d4cba6`, a clean worktree, matching live/Git hashes for all twelve authoritative implementation files, and the expected three revision markers. The Drawing-chrome investigation described below did not modify extension files, the live directory, or the Git mirror.
+
 ## Manifest and execution architecture
 
 The extension remains Manifest V3 version 0.1.1 with minimum Chrome 111. It requests the `storage` permission, declares a toolbar action with `popup.html`, provides 16/32/48/128 px icons, and loads two scripts at `document_idle` in matching Onshape production drawing-editor frames with `all_frames: true`:
 
 ```text
-bridge.js → ISOLATED world
-theme.js  → MAIN world
+bridge.js â†’ ISOLATED world
+theme.js  â†’ MAIN world
 ```
 
 `bridge.js` owns access to `chrome.storage.local`. `theme.js` retains exclusive ownership of the established Onshape renderer paths. Settings cross the world boundary through a versioned same-window `postMessage` protocol with channel, protocol, direction, type, source, origin, and preset-ID validation.
@@ -148,7 +152,7 @@ Direct custom application retains a normalized `activeTheme` and sets `activePre
 
 ## Accepted named presets
 
-### Warm Drafting — default
+### Warm Drafting â€” default
 
 ```javascript
 {
@@ -220,14 +224,14 @@ The accepted extension-context popup is implemented by:
 ```text
 popup.html
 popup.css
-popup.js → preset-popup-2
+popup.js â†’ preset-popup-2
 ```
 
 It presents the three stable preset IDs as native radio controls inside full-card labels. Each card contains a code-native miniature drawing preview using the exact accepted sheet, foreground, and surround colors. The popup reads and writes only `chrome.storage.local.selectedPreset`, mirrors storage changes while open, repairs missing or invalid values to `warm_drafting`, reports storage failures visibly, and skips a redundant write when the active preset is selected again.
 
 The popup does not query tabs, message drawing frames, traverse Onshape objects, or duplicate renderer orchestration. Existing `bridge.js` instances observe its storage write and relay the allowlisted preset ID through the accepted path.
 
-The accepted visual design is an approximately 400 × 563 px charcoal panel with three 112 px preview cards, a saved-state footer, and no remote resources or inline script. The split drafting-sheet icon family uses progressively simplified vector geometry at small sizes; the manifest consumes PNG assets at 16, 32, 48, and 128 px while retaining editable SVG masters.
+The accepted visual design is an approximately 400 Ã— 563 px charcoal panel with three 112 px preview cards, a saved-state footer, and no remote resources or inline script. The split drafting-sheet icon family uses progressively simplified vector geometry at small sizes; the manifest consumes PNG assets at 16, 32, 48, and 128 px while retaining editable SVG masters.
 
 ## Accepted runtime validation
 
@@ -265,26 +269,93 @@ Popup and icon acceptance established:
 
 The Extension storage tree may temporarily appear empty in DevTools after a page reload. Refreshing the DevTools Application view restores discovery; this did not indicate lost extension storage.
 
+## Drawing editor chrome research
+
+The next authorized product expansion is the **Drawing editor chrome** surrounding the WebGL canvas, not the already-dark global Onshape document header. Read-only DOM/CSS inspection and temporary reversible Console mutations established that the Drawing editor receives `theme=dark` in its iframe URL but retains a legacy light Wt/Xenon interface.
+
+No extension source or Git-controlled file was modified during these proofs. Recreating the Drawing editor realm cleared the temporary mutations and the stored Industrial Cyanotype preset reapplied normally.
+
+### Proven toolbar surfaces
+
+The primary toolbar is ordinary DOM inside the Drawing `editor` iframe:
+
+```text
+.xenon-menu.xenon-toolbar.navbar.active-toolbar
+â†’ .navbar-inner
+â†’ .container
+```
+
+`.navbar-inner` owns the native white 36-pixel toolbar field through `style.css`; its child `.container` is transparent. A temporary `#333333` background recolored only the toolbar.
+
+Toolbar actions use individual external SVG files through 28 Ã— 28 `.toolbar-button > img` elements. The sampled `hatch_button.svg` used a fixed `#333333` path fill and no `currentColor`, style block, or filter. Applying `brightness(0) invert(80%)` to 16 matched action images produced approximately `#CCCCCC` icons that remained visible on charcoal. Disabled icons remained subdued and blue dropdown indicators remained visible.
+
+Hover boundaries remained readable. The native light selected-tool field reduced icon contrast; HUMAN classified selected-state refinement as wishlist work rather than a blocker. Tooltips remain out of scope.
+
+### Proven Sheets-panel surfaces
+
+The large Sheets field resolves through:
+
+```text
+[data-object-name="OsDrawingExplorer"]
+â†’ .content.flyoutContent
+```
+
+The blank field's native background was `rgb(250,250,250)`. Its intervening tree containers were transparent. The tree's native `#666666` text was independent of the renderer foreground.
+
+A temporary proof using Industrial Cyanotype's surround `#3A4148` plus neutral UI text `#C8D0D8` materially improved readability. The same background and text treatment worked on the Sheets header and sort tabs while preserving the functional blue active-tab underline. Selected Sheets rows remain imperfect but understandable and are wishlist refinement.
+
+### Proven right-side toggle surfaces
+
+The right-side flyout group has no common opaque rail. Its containers are transparent and each `.btn.toggleBtn.with-icon` owns its own white 33 Ã— 34 tile and gray border:
+
+```text
+.xenon-flyout-widget-container.xenon-flyout-right
+â†’ [data-object-name="flyoutContainerRow"]
+â†’ .toggleButtonContainer
+â†’ .btn.toggleBtn.with-icon
+```
+
+A temporary proof matched four tiles and four 20 Ã— 20 external SVG images for Inspection table, Styles, Drawing properties, and MBD status. Tile background `#3A4148`, border `#56616B`, and `brightness(0) invert(80%)` icon filtering produced a coherent dark result. Some multicolor icon definition was lost; HUMAN accepted that tradeoff for these recognizable, lower-frequency functions.
+
+The separate bottom Measure tile was not matched and remains a bounded follow-up target.
+
+### Emerging UI palette and architecture
+
+All accepted preset surrounds are dark and may serve as preset-coherent Drawing-chrome backgrounds:
+
+| Preset | Candidate UI background |
+| --- | --- |
+| Warm Drafting | `#50575A` |
+| Slate Graphite | `#42484E` |
+| Industrial Cyanotype | `#3A4148` |
+
+Neutral UI text `#C8D0D8` and filtered ordinary icons near `#CCCCCC` can remain constant across all three presets. The provisional border is `#56616B`; a provisional selected-state field is `#365F78`, not yet selector-verified or accepted.
+
+The leading deployment hypothesis is a narrowly scoped Drawing-frame stylesheet. If UI backgrounds follow the selected preset, a future bounded isolated-world addition may mirror the already validated preset ID into one extension-owned root attribute for CSS selectors. `theme.js` must remain the renderer owner and must not absorb DOM styling responsibilities.
+
 ## Current phase and next gate
 
-Named presets, persistent preset selection, the preset-selection popup, and the split drafting-sheet icon family are complete and committed. Documentation reconciliation against `c541410` is the current gate.
+Named presets, persistent preset selection, the preset-selection popup, and the split drafting-sheet icon family are complete and committed. Read-only commissioning and the Drawing toolbar/Sheets/right-toggle DOM/CSS proofs are complete.
 
-After documentation is committed, run the planned bounded lifecycle regression across reloads and multiple drawing tabs or create a fresh-context handoff before beginning it. Navbar/title-bar work remains the next product expansion after lifecycle confidence; title-block, persistent white-field, highlight, independent-dimension-color, and custom-color work remain outside the completed popup increment.
+The next primary gate is mapping and temporarily recoloring the content of the flyout panels themselves, beginning with the open **Drawing properties** panel. Its native-white title, tabs, section headers, form rows, fields, checkboxes, scrollbar, and footer should be inspected in layers. Establish shared semantic selectors before proposing implementation or applying broad rules.
+
+The separate Measure tile is the secondary target. Toolbar selected-state and Sheets selected-row tuning remain wishlist work. ASTRA is not yet justified; bounded DevTools inspection remains sufficient.
 
 ## Product backlog and boundaries
 
 Planned order:
 
-1. Reconcile documentation against the accepted popup/icon commit.
-2. Run lifecycle regression across reloads and multiple drawing tabs.
-3. Pursue Onshape navigation/title-bar theming.
-4. Consider optional custom-color UI.
+1. Map and prove the shared flyout-panel body, header, section, field, and text surfaces.
+2. Identify and recolor the independent bottom Measure tile.
+3. Decide whether a static neutral shell or preset-coherent backgrounds should be implemented.
+4. Propose the smallest Drawing-frame CSS and optional preset-marker architecture.
+5. Consider selected-state refinement and optional custom-color UI only after the primary chrome surfaces are accepted.
 
 Optional backlog:
 
 - title-block treatment;
 - persistent white selectable-field treatment;
-- selection/highlight tuning;
+- Drawing toolbar and Sheets-row selected/highlight tuning;
 - independent dimension color only if a new product need justifies its complexity.
 
 The relationship between title-block/selectable-field behavior and selection-highlight controls is plausible but not established. These items remain optional and must not reopen the accepted popup increment.
@@ -295,8 +366,11 @@ The relationship between title-block/selectable-field behavior and selection-hig
 - Behavior across many simultaneous drawing tabs is not yet broadly validated.
 - The brief native-white interval before renderer availability is accepted for now.
 - The DOM message bridge is intentionally narrow but not a security boundary.
+- Exact shared selectors for flyout-panel bodies, headers, sections, fields, and scrollbars remain unknown.
+- The Measure tile's exact semantic container remains unknown.
+- Static-CSS behavior across every Drawing SPA reconstruction is not yet established.
 - The cause of one historical RESTORE stale-pixel observation remains unknown and is not reproducible in the current runtime.
 - The cause of one invalid-input-time visual flicker remains unknown; the rejection path performed no extension write or invalidation.
 - No automated browser integration suite exists; renderer validation remains controlled live testing with logs and exact readback.
 
-Do not reopen completed renderer archaeology, independent dimension-color research, the historical RESTORE anomaly, or speculative DOM/CSS/SVG approaches without contradictory current-runtime evidence or a newly authorized bounded requirement.
+Do not reopen completed renderer archaeology, independent dimension-color research, or the historical RESTORE anomaly without contradictory current-runtime evidence or a newly authorized bounded requirement. Continue Drawing-chrome work through the established bounded DOM/computed-style/reversible-proof methodology; do not recursively expand the full Drawing DOM or use generated IDs as production selectors.

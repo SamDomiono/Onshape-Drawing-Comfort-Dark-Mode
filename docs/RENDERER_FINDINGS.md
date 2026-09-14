@@ -1,6 +1,6 @@
 # Onshape Drawing Comfort Extension — Renderer Findings
 
-**Updated:** 2026-09-13
+**Updated:** 2026-09-14
 **Current accepted MAIN revision:** `persistence-main-1`
 **Current accepted bridge revision:** `persistence-bridge-1`
 **Current accepted popup revision:** `preset-popup-2`
@@ -205,6 +205,73 @@ These findings establish persistence orchestration without changing the accepted
 
 The toolbar icon and popup drawing thumbnails are extension UI assets. Their use of accepted palette colors does not make them renderer evidence or a second theme-definition path; `theme.js` remains authoritative for renderer mutation.
 
+## Drawing-chrome DOM/CSS findings — non-renderer
+
+The authorized Drawing-chrome investigation did not change `theme.js`, `bridge.js`, `popup.js`, any renderer path, or the accepted live/Git implementation files. Every visual change described below was a temporary DevTools/Console mutation and cleared when the Drawing editor realm was recreated. Industrial Cyanotype then reapplied through the accepted persistence and renderer path.
+
+### Ownership boundary
+
+**ESTABLISHED:** The Drawing editor toolbar, Sheets panel, and right-side flyout controls are ordinary DOM/CSS surfaces inside the production Drawing `editor` iframe. The iframe URL receives `theme=dark`, but its legacy roots remain light Wt/Xenon markup:
+
+```text
+html.Wt-layout
+body.Wt-layout.Wt-ltr
+```
+
+These surfaces are architecturally separate from the WebGL drawing renderer. Recoloring them with CSS does not establish or alter renderer behavior.
+
+### Primary toolbar
+
+**ESTABLISHED structure:**
+
+```text
+.xenon-menu.xenon-toolbar.navbar.active-toolbar
+→ .navbar-inner
+→ .container
+```
+
+`.navbar-inner` owns the native 36-pixel white toolbar surface through Drawing `style.css`; its `.container` child is transparent. A temporary `#333333` override recolored the toolbar independently of the Sheets panel and right-side controls.
+
+Toolbar actions use external SVG `<img>` elements sized 28 × 28 by `.toolbar-button > img`. The sampled `hatch_button.svg` was 422 characters, used a fixed `#333333` fill, and contained no `currentColor`, style block, or filter definition. A temporary `brightness(0) invert(80%)` filter matched 16 toolbar images and produced an approximately `#CCCCCC` neutral icon tone. Disabled tools remained subdued and blue dropdown indicators remained visible.
+
+The native hover boundary remains legible. The native selected-tool background reduces icon contrast against the dark toolbar; improving that highlight is a wishlist item, not a blocker. Native white tooltips are currently out of scope.
+
+### Sheets explorer
+
+**ESTABLISHED surface path:**
+
+```text
+[data-object-name="OsDrawingExplorer"]
+→ .content.flyoutContent
+```
+
+The native field background is `rgb(250, 250, 250)` and the intervening containers are transparent. Native tree text is `#666666`; it is not the renderer foreground color. A reversible proof used the Industrial Cyanotype surround `#3A4148` for the panel surface and neutral UI text `#C8D0D8`. The same pair worked for the header and sort tabs while preserving the blue active-tab underline.
+
+A separate UI-text color is necessary because renderer foreground colors are chosen for the drawing sheet and do not guarantee contrast on chrome surfaces. For example, Warm Drafting's dark renderer foreground would disappear against a dark Sheets panel. The selected-sheet row remains imperfect but understandable and is a wishlist refinement.
+
+### Right-side flyout toggle tiles
+
+**ESTABLISHED structure:**
+
+```text
+.xenon-flyout-widget-container.xenon-flyout-right
+→ [data-object-name="flyoutContainerRow"]
+→ .toggleButtonContainer
+→ .btn.toggleBtn.with-icon
+```
+
+There is no opaque common rail between the tiles; the group containers are transparent. Each observed tile owns its native white 33 × 34-pixel background, approximately one-pixel gray border, and a 20 × 20 external SVG image.
+
+A reversible proof matched four buttons and four images: Inspection table, Styles, Drawing properties, and MBD status. It used background `#3A4148`, border `#56616B`, and `brightness(0) invert(80%)` on the images. Some multicolor icon definition was lost, which is accepted provisionally because these controls are low-frequency and familiar through repetition. The separate bottom Measure control was not matched and remains pending.
+
+### Current inference and unknowns
+
+**INFERRED:** The least-coupled implementation is a narrowly scoped Drawing-frame stylesheet, provisionally `drawing-ui.css`, using stable classes and `data-object-name` attributes rather than generated IDs. If chrome backgrounds should follow the selected preset surround, a bounded isolated-world addition can mirror the validated preset ID onto an extension-owned root attribute. `theme.js` must remain the renderer owner and must not become the DOM-style owner.
+
+**UNKNOWN:** The complete selector and state model for open flyout panels, the separate Measure control, selected and active highlights, and stylesheet persistence across all Drawing single-page lifecycle transitions still require bounded inspection. The opened Drawing properties panel establishes the next surface family: title/header, tab strip, section headers, form rows, select-like fields, checkboxes, scrollbar, and footer.
+
+Do not generalize these Drawing DOM colors into renderer-native representations or use Drawing-chrome observations as evidence for WebGL paths.
+
 ## Selection and active dimensions
 
 **ESTABLISHED by HUMAN:**
@@ -230,6 +297,6 @@ Permissions policy violation: unload is not allowed in this document.
 
 ## Boundaries
 
-Do not restart broad searches for independent dimension color, highlight control, title-block rendering, persistent white fields, navbar styling, or alternative DOM/CSS/SVG renderer strategies merely because the preset UI is complete.
+Do not restart broad searches for independent dimension color, canvas highlight control, title-block rendering, persistent white canvas fields, or alternative renderer strategies merely because Drawing-chrome work is active.
 
-Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.
+Continue authorized Drawing-chrome work through bounded DOM/computed-style inspection and reversible CSS proofs. Do not treat those findings as renderer evidence, modify `theme.js` to own DOM styling, recursively expand the complete DOM, or use generated IDs. Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.
