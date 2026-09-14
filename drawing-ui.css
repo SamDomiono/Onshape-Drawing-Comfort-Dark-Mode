@@ -1,0 +1,586 @@
+/*
+ * Onshape Drawing Comfort Extension
+ * Drawing chrome layer
+ * Revision: drawing-ui-css-2
+ *
+ * Owns legacy Drawing-editor DOM/CSS only.
+ * Does NOT own WebGL renderer colors.
+ */
+
+:root {
+  --oce-ui-background: #50575A;
+  --oce-ui-text: #C8D0D8;
+  --oce-ui-muted: #7F8A94;
+  --oce-ui-field: #2F353B;
+  --oce-ui-disabled-field: #353B41;
+  --oce-ui-disabled-border: #4A535C;
+  --oce-ui-section: #50575A;
+  --oce-ui-border: #56616B;
+  --oce-ui-notice: #294B5F;
+  --oce-ui-active-border: #6F8798;
+  --oce-ui-image-tile: #737A80;
+  --oce-ui-image-border: #8A9299;
+  --oce-ui-selected: #365F78;
+  --oce-ui-scroll-thumb: #68737D;
+  --oce-ui-scroll-thumb-hover: #7D8A95;
+  --oce-ui-icon-filter: brightness(0) invert(80%);
+}
+
+:root[data-oce-preset="warm_drafting"] {
+  --oce-ui-background: #50575A;
+}
+
+:root[data-oce-preset="slate_graphite"] {
+  --oce-ui-background: #42484E;
+}
+
+:root[data-oce-preset="industrial_cyanotype"] {
+  --oce-ui-background: #3A4148;
+}
+
+
+/* ==========================================================
+   PRIMARY DRAWING TOOLBAR
+   ========================================================== */
+
+.xenon-menu.xenon-toolbar.navbar.active-toolbar > .navbar-inner {
+  background-color: var(--oce-ui-background) !important;
+}
+
+.xenon-menu.xenon-toolbar.navbar.active-toolbar
+.toolbar-button > img {
+  filter: var(--oce-ui-icon-filter);
+}
+
+
+/* ==========================================================
+   SHEETS EXPLORER
+   ========================================================== */
+
+[data-object-name="OsDrawingExplorer"] {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+[data-object-name="OsDrawingExplorer"] .content.flyoutContent {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+[data-object-name="OsDrawingExplorer"] .XeLabel,
+[data-object-name="OsDrawingExplorer"] .Wt-label {
+  color: var(--oce-ui-text) !important;
+}
+
+
+/* ==========================================================
+   RIGHT-SIDE TOGGLE TILES
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="flyoutContainerRow"]
+.toggleButtonContainer
+.btn.toggleBtn.with-icon {
+  background-color: var(--oce-ui-background) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="flyoutContainerRow"]
+.toggleButtonContainer
+.btn.toggleBtn.with-icon > img {
+  filter: var(--oce-ui-icon-filter);
+}
+
+
+/* ==========================================================
+   MEASURE TILE
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="btnElementProperties"].measurementBtn.with-icon {
+  background-color: var(--oce-ui-background) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="btnElementProperties"].measurementBtn.with-icon
+> img[src*="measure-button.svg"] {
+  filter: var(--oce-ui-icon-filter);
+}
+
+
+/* ==========================================================
+   SHARED RIGHT-SIDE FLYOUT SHELL
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="flyoutContentStackedWidget"] {
+  background-color: var(--oce-ui-background) !important;
+  border-color: var(--oce-ui-border) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="flyoutContentStackedWidget"]
+> .xenon-flyout-widget {
+  background-color: var(--oce-ui-background) !important;
+  border-color: var(--oce-ui-border) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.xenon-flyout-widget
+[data-object-name="flyoutHeader"] {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.xenon-flyout-widget
+[data-object-name="flyoutHeader"].header.headerUnderLineSticky {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.xenon-flyout-widget
+[data-object-name="flyoutHeader"]
+[data-object-name="Title"] {
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.xenon-flyout-widget
+[data-object-name="flyoutBody"] {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+
+/* ==========================================================
+   SHARED FORM CONTROLS
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+select.XeDropdown,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+input.XeDropdown,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+input.XeSpinBox.Wt-spinbox,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.OsDropdown.OsPropertyPanelDropdown {
+  background-color: var(--oce-ui-field) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+select.XeDropdown:disabled,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+input.XeDropdown:disabled,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+input.XeSpinBox.Wt-spinbox:disabled {
+  background-color: var(--oce-ui-disabled-field) !important;
+  color: var(--oce-ui-muted) !important;
+  border-color: var(--oce-ui-disabled-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="flyoutBody"] .XeLabel {
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+label.checkbox > input + span {
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+label.checkbox > input:disabled + span {
+  color: var(--oce-ui-muted) !important;
+}
+
+
+/* ==========================================================
+   DRAWING PROPERTIES
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyFlyout"]
+.XeDialogSectionTabContainer {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyFlyout"]
+.XeDialogSectionTabHeader {
+  background-color: var(--oce-ui-section) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyFlyout"]
+.XeDialogSectionTabHeaderTitle {
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyTab"]
+ul.nav-tabs > li > a {
+  background-color: var(--oce-ui-image-tile) !important;
+  border-color: var(--oce-ui-image-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyTab"]
+ul.nav-tabs > li.active > a {
+  background-color: var(--oce-ui-selected) !important;
+  border-color: var(--oce-ui-active-border) !important;
+}
+
+
+/* ==========================================================
+   INSPECTION / MBD SECTION BARS
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.os-table-description {
+  background-color: var(--oce-ui-section) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.os-table-description
+.XeLabel.OsCollapsibleText {
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.os-table-description
+.OsCollapsibleButton.btn > img {
+  filter: var(--oce-ui-icon-filter);
+}
+
+
+/* ==========================================================
+   INFORMATION NOTICES
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.IntimationMessageContainerStyle {
+  background-color: var(--oce-ui-notice) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-active-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.IntimationMessageContainerStyle .XeLabel {
+  color: var(--oce-ui-text) !important;
+}
+
+
+/* ==========================================================
+   INSPECTION / Wt TABLE GRIDS
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.Wt-tv-contents
+.Wt-tv-c:not(.Wt-delegate-edit) {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.Wt-header
+.Wt-tv-c.headerrh {
+  background-color: var(--oce-ui-section) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.Wt-header
+.Wt-label {
+  color: var(--oce-ui-text) !important;
+}
+
+
+/* ==========================================================
+   PROVEN TABLE SCROLLBARS ONLY
+   General flyout scrollbars intentionally excluded.
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.tcontainer::-webkit-scrollbar-track {
+  background-color: var(--oce-ui-field) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.tcontainer::-webkit-scrollbar-corner {
+  background-color: var(--oce-ui-field) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.tcontainer::-webkit-scrollbar-thumb {
+  background-color: var(--oce-ui-scroll-thumb) !important;
+  border: 2px solid var(--oce-ui-field) !important;
+  border-radius: 6px !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+.tcontainer::-webkit-scrollbar-thumb:hover {
+  background-color: var(--oce-ui-scroll-thumb-hover) !important;
+}
+
+
+/* ==========================================================
+   STYLES FOOTER
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsStylePropertyFlyout"]
+[data-object-name="flyoutFooter"].footerStylePanel {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsStylePropertyFlyout"]
+.footerStylePanel
+.revertButtonStyle,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsStylePropertyFlyout"]
+.footerStylePanel
+.helpStyle {
+  background-color: var(--oce-ui-image-tile) !important;
+  border-color: var(--oce-ui-image-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsStylePropertyFlyout"]
+.footerStylePanel
+.RevertLabelStyle {
+  color: var(--oce-ui-muted) !important;
+}
+
+
+/* ==========================================================
+   DRAWING PROPERTIES FOOTER
+   Parent/footer treatment only.
+   Browse/Help leaf selector refinement is deferred unless
+   the first persistent candidate shows those tiles remain light.
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyFlyout"]
+[data-object-name="flyoutFooter"].templatepanelfooter {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyFlyout"]
+[data-object-name="flyoutFooter"].templatepanelfooter
+[data-object-name="OsTemplatePropertiesPanel"] {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyFlyout"]
+.templatepanelfooter
+label.checkbox > input + span {
+  color: var(--oce-ui-text) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsDrawingPropertyFlyout"]
+.templatepanelfooter
+label.checkbox > input:disabled + span {
+  color: var(--oce-ui-muted) !important;
+}
+/* ==========================================================
+   CSS-2 REFINEMENTS
+   Proven live 2026-09-14 on work-laptop sandbox.
+   ========================================================== */
+
+
+/* ==========================================================
+   SHEETS — SORT TABS
+
+   Live proof:
+   [data-object-name="OsDrawingExplorerTab"]
+   -> ul.nav-tabs -> li -> a
+
+   Preserve native active indication while removing white tabs.
+   ========================================================== */
+
+[data-object-name="OsDrawingExplorerTab"]
+ul.nav-tabs > li > a {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+
+/* ==========================================================
+   SHEETS — FLYOUT TOGGLE
+
+   Independent left-side toggle; intentionally NOT placed under
+   the xenon-flyout-right root.
+   ========================================================== */
+
+[data-object-name="flyoutToggleButton_OsDrawingExplorer"] {
+  background-color: var(--oce-ui-background) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+[data-object-name="flyoutToggleButton_OsDrawingExplorer"] > img {
+  filter: var(--oce-ui-icon-filter) !important;
+}
+
+
+/* ==========================================================
+   SHEETS — SUBORDINATE VIEW NAMES
+
+   Native leaf text used #666666 and overrode inherited
+   neutral chrome text.
+   ========================================================== */
+
+[data-object-name="OsDrawingExplorer"]
+.xenon-sheet-nondangling-item
+[data-object-name="t"] {
+  color: var(--oce-ui-text) !important;
+}
+
+
+/* ==========================================================
+   INSPECTION — UNUSED TABLE VIEWPORT
+
+   Live proof established Wt-itemview/Wt-tableview as the
+   background owner exposed where no cells occupy the viewport.
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+.Wt-itemview.Wt-tableview {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+
+/* ==========================================================
+   INSPECTION — STICKY TABLE HEADERS
+
+   Two live matches: Datums + Characteristics.
+   The sticky header container independently owned the native
+   light background outside populated header cells.
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+.inspection-panel-sticky-header {
+  background-color: var(--oce-ui-section) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+
+/* ==========================================================
+   STYLES — REVERT LABEL
+
+   Live probe established .RevertLabelStyle itself retained
+   native #F9F9F9 while its footer was already correctly dark.
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsStylePropertyFlyout"]
+.RevertLabelStyle {
+  background-color: transparent !important;
+}
+
+
+/* ==========================================================
+   INSPECTION — ACTUAL SCROLL OWNERS
+
+   Live overflow probe established:
+     - table .tcontainer objects own table scrollbars
+     - tablesContainerWidget.stylePanelScrollBar owns the
+       whole Inspection-panel scrollbar
+
+   Counts in proof realm:
+     tableScrollers: 8
+     panelScrollers: 1
+   ========================================================== */
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+.Wt-itemview.Wt-tableview
+.tcontainer::-webkit-scrollbar,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+[data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+.Wt-itemview.Wt-tableview
+.tcontainer::-webkit-scrollbar-track,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+[data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-track {
+  background: var(--oce-ui-field) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+.Wt-itemview.Wt-tableview
+.tcontainer::-webkit-scrollbar-corner,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+[data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-corner {
+  background: var(--oce-ui-field) !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+.Wt-itemview.Wt-tableview
+.tcontainer::-webkit-scrollbar-thumb,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+[data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-thumb {
+  background: var(--oce-ui-scroll-thumb) !important;
+  border: 2px solid var(--oce-ui-field) !important;
+  border-radius: 6px !important;
+}
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+.Wt-itemview.Wt-tableview
+.tcontainer::-webkit-scrollbar-thumb:hover,
+
+.xenon-flyout-widget-container.xenon-flyout-right
+[data-object-name="OsInspectionPanelFlyout"]
+[data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-thumb:hover {
+  background: var(--oce-ui-scroll-thumb-hover) !important;
+}

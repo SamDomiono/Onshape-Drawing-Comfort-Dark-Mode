@@ -1,11 +1,12 @@
 (() => {
   "use strict";
   const VERSION = "0.1.1";
-  const REVISION = "persistence-bridge-1";
+  const REVISION = "drawing-ui-bridge-1";
   const KEY = "__onshapeComfortBridge01";
   const CHANNEL = "onshape-comfort-extension";
   const PROTOCOL = 1;
   const STORAGE_KEY = "selectedPreset";
+  const PRESET_ATTRIBUTE = "data-oce-preset";
   const DEFAULT_PRESET = "warm_drafting";
   const VALID_PRESETS = Object.freeze([
     "warm_drafting",
@@ -21,7 +22,16 @@
   let status = "loading";
   let selectedPreset = DEFAULT_PRESET;
 
+  function syncPresetMarker() {
+    if (validPreset(selectedPreset)) {
+      document.documentElement.setAttribute(PRESET_ATTRIBUTE, selectedPreset);
+      return;
+    }
+    document.documentElement.removeAttribute(PRESET_ATTRIBUTE);
+  }
+
   function postSettings(reason) {
+    syncPresetMarker();
     window.postMessage({
       channel: CHANNEL,
       protocol: PROTOCOL,
@@ -78,6 +88,7 @@
       postSettings(value === undefined ? "default-initialized" : "invalid-repaired");
     } catch (error) {
       status = "failed";
+      document.documentElement.removeAttribute(PRESET_ATTRIBUTE);
       log("STORAGE INITIALIZATION FAILED", { reason: error.message });
     }
   }
@@ -118,7 +129,12 @@
       }
     },
     report() {
-      log("STATE", { status, selectedPreset, storageKey: STORAGE_KEY });
+      log("STATE", {
+        status,
+        selectedPreset,
+        storageKey: STORAGE_KEY,
+        presetAttribute: document.documentElement.getAttribute(PRESET_ATTRIBUTE)
+      });
     }
   });
 

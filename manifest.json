@@ -28,6 +28,7 @@
       "all_frames": true,
       "world": "ISOLATED",
       "run_at": "document_idle",
+      "css": ["drawing-ui.css"],
       "js": ["bridge.js"]
     },
     {
