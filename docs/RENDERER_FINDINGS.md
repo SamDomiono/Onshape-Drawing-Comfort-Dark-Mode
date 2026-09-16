@@ -1,9 +1,10 @@
 # Onshape Drawing Comfort Extension — Renderer Findings
 
-**Updated:** 2026-09-14
-**Current accepted MAIN revision:** `persistence-main-1`
-**Current accepted bridge revision:** `persistence-bridge-1`
-**Current accepted popup revision:** `preset-popup-2`
+**Updated:** 2026-09-16 — accepted toggle implementation and technical closeout
+**Current accepted MAIN revision:** `persistent-toggle-main-1`
+**Current accepted bridge revision:** `drawing-ui-toggle-bridge-1`
+**Current accepted Drawing CSS revision:** `drawing-ui-toggle-css-1`
+**Current accepted popup revision:** `preset-popup-toggle-1`
 
 ## Evidence language
 
@@ -23,7 +24,7 @@ sheet fill
 
 These controls do not share one renderer-native representation. Standard `#RRGGBB` is the public boundary; conversion occurs inside MAIN-world `theme.js`.
 
-The persistence and popup increments did not change any accepted renderer resolver, representation, mutation, verification, rollback, or redraw path.
+The earlier persistence and preset-popup increments did not change any accepted renderer resolver, representation, mutation, verification, rollback, or redraw path. Source review of the accepted toggle increment established a reversible internal `restore()` call on OFF without changing the existing renderer resolver, representation, mutation/readback/rollback, or redraw mechanism. The public `restore()` remains a permanent stop for that realm.
 
 ## Surround
 
@@ -249,9 +250,9 @@ The native field background is `rgb(250, 250, 250)` and the intervening containe
 
 A separate UI-text color is necessary because renderer foreground colors are chosen for the drawing sheet and do not guarantee contrast on chrome surfaces. For example, Warm Drafting's dark renderer foreground would disappear against a dark Sheets panel. The selected-sheet row remains imperfect but understandable and is a wishlist refinement.
 
-### Right-side flyout toggle tiles
+### Right-side toggle and independent Measure tiles
 
-**ESTABLISHED structure:**
+**ESTABLISHED structure for the four main toggles:**
 
 ```text
 .xenon-flyout-widget-container.xenon-flyout-right
@@ -262,15 +263,261 @@ A separate UI-text color is necessary because renderer foreground colors are cho
 
 There is no opaque common rail between the tiles; the group containers are transparent. Each observed tile owns its native white 33 × 34-pixel background, approximately one-pixel gray border, and a 20 × 20 external SVG image.
 
-A reversible proof matched four buttons and four images: Inspection table, Styles, Drawing properties, and MBD status. It used background `#3A4148`, border `#56616B`, and `brightness(0) invert(80%)` on the images. Some multicolor icon definition was lost, which is accepted provisionally because these controls are low-frequency and familiar through repetition. The separate bottom Measure control was not matched and remains pending.
+A reversible proof matched four buttons and four images: Inspection table, Styles, Drawing properties, and MBD status. It used background `#3A4148`, border `#56616B`, and `brightness(0) invert(80%)` on the images. Some multicolor icon definition was lost, which HUMAN accepted for these recognizable, lower-frequency controls.
+
+**ESTABLISHED independent Measure structure:**
+
+```text
+[data-object-name="btnElementProperties"].measurementBtn.with-icon
+→ img[src*="measure-button.svg"]
+```
+
+The Measure tile owns a separate native white 33 × 34 surface and `#CCCCCC` border. A proof matched one tile and one 20 × 20 image and successfully applied the same dark tile, border, and icon-filter treatment.
+
+### Shared flyout shell and lifecycle
+
+**ESTABLISHED panel stack:**
+
+```text
+.xenon-flyout-widget-container.xenon-flyout-right
+→ [data-object-name="flyoutContentStackedWidget"]
+→ .xenon-flyout-widget
+```
+
+Observed direct panels were `OsInspectionPanelFlyout`, `OsStylePropertyFlyout`, `OsDrawingPropertyFlyout`, and `OsMBDStatusPanelFlyout`. They share direct `flyoutHeader`, `flyoutBody`, and `flyoutFooter` regions. The stack accepted background `#3A4148`, border `#56616B`, and title text `#C8D0D8`.
+
+The header can acquire `.headerUnderLineSticky`, whose native rule forces `#FAFAFA !important` and a blue inset underline. A sufficiently specific dark override must include the sticky state. The proof preserved the blue underline and matched five instantiated headers, two sticky at the time.
+
+**ESTABLISHED DevTools realm behavior:** Recreating the Drawing editor replaces its document realm. `$0.ownerDocument` can therefore refer to a detached former document even when a Console command remains syntactically valid. A fresh element-picker selection in the live editor restored nonzero selector matches. Temporary style elements disappear with the old realm while the accepted renderer preset reapplies through normal persistence.
+
+### Shared form-control families
+
+**ESTABLISHED selectors and accepted proof colors:**
+
+| Control | Selector family | Background | Text | Border |
+| --- | --- | --- | --- | --- |
+| Native/select-like dropdown | `select.XeDropdown`, `input.XeDropdown` | `#2F353B` | `#C8D0D8` | `#56616B` |
+| Numeric spinbox | `input.XeSpinBox.Wt-spinbox` | `#2F353B` | `#C8D0D8` | `#56616B` |
+| Hatch/custom dropdown | `.OsDropdown.OsPropertyPanelDropdown` | `#2F353B` | `#C8D0D8` | `#56616B` |
+| Body label | flyout-body `.XeLabel` | transparent | `#C8D0D8` | inherited |
+| Checkbox caption | `label.checkbox > input + span` | transparent | `#C8D0D8` | inherited |
+
+Disabled controls/captions used provisional background `#353B41`, text `#7F8A94`, and border `#4A535C`. The standard dropdown proof matched 14 instantiated right-side controls in one realm; the shared label proof matched 28 labels. Counts vary with Onshape's instantiated hidden panels and tabs. The visible Styles spinbox retained its native increment/decrement background image after recoloring. Dropdown carets and the custom hatch-dropdown affordance were preserved.
+
+### Drawing Properties body and tabs
+
+**ESTABLISHED section families:**
+
+```text
+.XeDialogSectionTabContainer
+.XeDialogSectionTabHeader
+.XeDialogSectionTabHeaderTitle
+```
+
+Successful proofs used body `#3A4148`, section header `#50575A`, title/body text `#C8D0D8`, field `#2F353B`, and border `#56616B`.
+
+The top Drawing-property tabs use anchors beneath `[data-object-name="OsDrawingPropertyTab"] ul.nav-tabs`. Their icons are background images, not descendant `<img>` elements, so an icon-only CSS filter is unavailable. HUMAN accepted inactive tiles `#737A80`/border `#8A9299` and active tile `#365F78`/border `#6F8798` as a legible compromise.
+
+### Inspection and MBD table panels
+
+**ESTABLISHED shared section bars:** `.os-table-description` rows include `.OsCollapsibleButton.btn > img` and `.XeLabel.OsCollapsibleText`. The shared proof matched six bars and four arrows. It used background `#50575A`, text `#C8D0D8`, border `#56616B`, and `brightness(0) invert(80%)` for arrows. HUMAN verified both expanded and collapsed arrow positions.
+
+**ESTABLISHED shared notices:** `.IntimationMessageContainerStyle` appears across Inspection, Styles, and MBD. A proof matched six notices and ten descendant labels and used background `#294B5F`, text `#C8D0D8`, and border `#6F8798`.
+
+**ESTABLISHED grid families:** After three datums were added, `datumsTable` and `inspectionTable` exposed two populated Wt table views. Body cells resolve through `.Wt-tv-contents .Wt-tv-c:not(.Wt-delegate-edit)`; headers resolve through `.Wt-header .Wt-tv-c.headerrh` and `.Wt-label`. The proof matched two grids, 70 body cells, and 10 header cells. Body background was `#3A4148`; header background was `#50575A`; text was `#C8D0D8`; borders were `#56616B`.
+
+The MBD empty state successfully inherited the shared shell, title, dropdown, section bars, arrows, and notice styling. A populated MBD grid was not available for direct verification.
+
+**ESTABLISHED table-scrollbar behavior:** The horizontal/vertical table scrollbars are CSS pseudo-elements on `.tcontainer`, not DOM children. A scoped proof matched 16 instantiated table scroll containers, four visible. It used track/corner `#2F353B`, thumb `#68737D`, hover thumb `#7D8A95`, and a two-pixel track-colored border. HUMAN accepted the visual result. General flyout-body vertical scrollbars were not separately proved.
+
+### Flyout footer controls
+
+**ESTABLISHED Styles footer:** `[data-object-name="flyoutFooter"].footerStylePanel` contains `.revertButtonStyle`, `.RevertLabelStyle`, and `.helpStyle`. One footer, two icon tiles, and one label were matched. The footer used `#3A4148`; background-image icon tiles used medium gray `#737A80` with border `#8A9299`; disabled text used `#7F8A94`.
+
+**ESTABLISHED Drawing Properties footer:** `[data-object-name="flyoutFooter"].templatepanelfooter` contains `OsTemplatePropertiesPanel`, the template-update label, Browse tile, hidden template-name input, Lock drawing properties checkbox, and Help tile. One footer, two icon tiles, one update label, and one checkbox caption were matched and accepted with the same footer/icon treatment.
+
+### Native Inspection table click error
+
+Clicking certain Inspection cells triggered Onshape `app.js` mouse-handler exceptions reading `objectName` from `undefined`. The same error repeated with the temporary theme disabled. **ESTABLISHED:** the error is independent of the recoloring proof. Its internal Onshape cause remains **UNKNOWN** and is outside extension scope.
+
+### Work-laptop persistent Drawing UI implementation
+
+The least-coupled deployment inference was tested and accepted on the work-laptop sandbox. The implementation uses `drawing-ui.css` for Drawing DOM/CSS and a bounded ISOLATED-world preset marker in `bridge.js`. `theme.js` remained byte-identical to the accepted renderer baseline throughout the implementation and validation.
+
+**ESTABLISHED work-laptop candidate boundary:**
+
+```text
+manifest.json
+884FAC5A719CFC62E0CB56A03BA92D12B3E31B368ED2AC8300B527DF2E266ECE
+
+bridge.js
+BF8D33B197F12376C5A35453556D9B61C0D65DD5AE48ACF6E49545FA102E0186
+
+theme.js
+5EF3FC50283AEE8D660A4A0D018C821682AF061CFDE1A1D217BD1149652D88BA
+
+drawing-ui.css
+D68F359B1E13DB104237CC1ACA359106578928C82565D8A0C6DD315C4BDF7E69
+```
+
+**ESTABLISHED revision markers in the accepted sandbox candidate:**
+
+```text
+MAIN:   persistence-main-1
+bridge: drawing-ui-bridge-1
+UI CSS: drawing-ui-css-2
+popup:  preset-popup-2
+```
+
+These are accepted September 14 sandbox hashes, not the final September 16 Git or LIVE hashes. The later toggle deployment and home reconciliation are documented in Project State.
+
+### Preset-coherent DOM marker
+
+The bridge retains the same exact preset allowlist used by persistence. After `selectedPreset` has already been validated, it mirrors the ID to the Drawing document root as `data-oce-preset`. The marker does not replace or broaden storage/message validation and does not perform renderer traversal.
+
+**ESTABLISHED ownership boundary after implementation:**
+
+```text
+bridge.js
+→ validate/store/relay selectedPreset
+→ mirror validated preset ID to data-oce-preset
+
+drawing-ui.css
+→ consume data-oce-preset for Drawing shell variables
+
+theme.js
+→ remain exclusive owner of WebGL renderer resolution/mutation/readback/redraw
+```
+
+The three shell backgrounds use the accepted surround colors: Warm `#50575A`, Slate `#42484E`, and Industrial Cyanotype `#3A4148`. Supporting UI colors remain independent neutral chrome colors rather than renderer foreground colors.
+
+### Persistent Sheets refinements
+
+Initial CSS persistently recolored the large Sheets field but left three minor native-light/subdued surfaces. Bounded probes established their actual owners.
+
+**ESTABLISHED sort-tab path:**
+
+```text
+[data-object-name="OsDrawingExplorerTab"]
+→ ul.nav-tabs
+→ li
+→ a
+```
+
+A proof matched two anchors and preserved the native blue active-tab indication while replacing the white tab field.
+
+**ESTABLISHED Sheets toggle:**
+
+```text
+[data-object-name="flyoutToggleButton_OsDrawingExplorer"]
+```
+
+This is independent of the right-side flyout root and therefore receives its own exact semantic rule.
+
+**ESTABLISHED subordinate view-name path:**
+
+```text
+[data-object-name="OsDrawingExplorer"]
+.xenon-sheet-nondangling-item
+[data-object-name="t"]
+```
+
+The leaf labels carried native `rgb(102,102,102)` and overrode inherited neutral text. A proof matched five view-name labels in the tested realm and promoted them to neutral UI text.
+
+### Inspection viewport ownership
+
+The first persistent implementation successfully styled populated Inspection cells and headers but exposed the native white table background wherever no cell occupied the viewport.
+
+A direct probe of the blank Datums region established the enclosing table view as the background owner:
+
+```text
+DIV.Wt-itemview.Wt-tableview
+[data-object-name="datumsTable"]
+```
+
+The exact generated ID seen during probing is intentionally discarded. Production CSS uses the semantic Inspection root plus `.Wt-itemview.Wt-tableview`. A combined proof matched two table views and recolored the unused viewport without changing populated cells.
+
+### Inspection sticky-header remainder
+
+After the table-view background was fixed, a light remainder persisted beside the populated Name/Sheet header cells. Direct probing established the owner as:
+
+```text
+DIV.Wt-header.headerrh.tcontainer.inspection-panel-sticky-header
+```
+
+The tested element reported a native `rgb(235,235,235)` background and `position: sticky`. Its enclosing `datumsTable` was already correctly themed. A scoped proof matched two sticky headers, corresponding to Datums and Characteristics, and applied the accepted section/header background `#50575A` with neutral text/border treatment.
+
+### Inspection scrollbar ownership — refined evidence
+
+The earlier reversible research correctly established `.tcontainer` pseudo-element scrollbar styling, but the persistent candidate revealed a separate visible whole-panel scrollbar. A live overflow probe was used rather than inferring ownership from class names.
+
+**ESTABLISHED Characteristics table scroller in the tested realm:**
+
+```text
+DIV.tcontainer
+clientWidth:  698
+scrollWidth: 1116
+clientHeight: 476
+scrollHeight:476
+overflow-x: auto
+overflow-y: auto
+```
+
+**ESTABLISHED Inspection panel/table-stack scroller:**
+
+```text
+[data-object-name="tablesContainerWidget"].stylePanelScrollBar
+clientWidth:  701
+scrollWidth: 701
+clientHeight: 701
+scrollHeight:733
+overflow-x: auto
+overflow-y: auto
+```
+
+A final reversible proof under `OsInspectionPanelFlyout` matched eight table scrollers and one panel scroller in the tested realm. Both families accepted:
+
+```text
+scrollbar width/height: 12px
+track/corner:           #2F353B
+thumb:                  #68737D
+thumb hover:            #7D8A95
+thumb border:           2px solid #2F353B
+thumb radius:           6px
+```
+
+**ESTABLISHED:** the resulting horizontal Characteristics scrollbar and vertical Inspection-panel scrollbar were visually coherent and accepted. This closes the prior tested-runtime uncertainty about the Inspection table-stack scrollbar. It does not establish ownership for every unrelated flyout scrollbar.
+
+The overflow probe also showed `.Wt-tv-contents` surfaces retaining native white computed backgrounds. No broader `.Wt-tv-contents` production rule was added because the proven table-view background fixed the visible unused area; invisible/native values were not changed without a demonstrated artifact.
+
+### Styles Revert leaf background
+
+The Styles footer shell was already correctly themed, but the visible `Revert to drawing properties` rectangle remained light. Direct probing established `.RevertLabelStyle` itself as the remaining owner with native `rgb(249,249,249)` background. A scoped `background-color: transparent` proof under `OsStylePropertyFlyout` was visually accepted and was added to CSS-2.
+
+### Persistent CSS-2 lifecycle validation
+
+The successful temporary refinements were consolidated into `drawing-ui-css-2`. Chrome was reloaded and a genuinely fresh Drawing editor realm was created without reinstalling any temporary DevTools style elements.
+
+**ESTABLISHED by exact hashes and HUMAN observation:**
+
+- `theme.js` remained exactly `5EF3FC50283AEE8D660A4A0D018C821682AF061CFDE1A1D217BD1149652D88BA`;
+- the permanent CSS reproduced the toolbar, Sheets, right-side tiles, flyouts, fields, notices, tables, headers, footers, and scrollbar treatment;
+- Sheets sort tabs, toggle, and view-name refinements persisted;
+- the Inspection unused viewport and both sticky headers remained dark;
+- Inspection table/panel scrollbars remained dark without temporary proof styles;
+- Styles, Drawing Properties, and MBD remained coherent;
+- the accepted WebGL renderer appearance remained intact;
+- styling persisted while switching among tested Drawing tabs/editor realms.
+
+This establishes static stylesheet persistence across the specific current-runtime reload/recreated-realm and multi-tab scenarios tested on the work laptop. It does not guarantee future Onshape DOM compatibility.
 
 ### Current inference and unknowns
 
-**INFERRED:** The least-coupled implementation is a narrowly scoped Drawing-frame stylesheet, provisionally `drawing-ui.css`, using stable classes and `data-object-name` attributes rather than generated IDs. If chrome backgrounds should follow the selected preset surround, a bounded isolated-world addition can mirror the validated preset ID onto an extension-owned root attribute. `theme.js` must remain the renderer owner and must not become the DOM-style owner.
+**ESTABLISHED for the tested runtime:** a narrowly scoped Drawing-frame stylesheet plus one validated isolated-world root marker is sufficient to deploy the accepted Drawing chrome treatment without moving DOM ownership into `theme.js`.
 
-**UNKNOWN:** The complete selector and state model for open flyout panels, the separate Measure control, selected and active highlights, and stylesheet persistence across all Drawing single-page lifecycle transitions still require bounded inspection. The opened Drawing properties panel establishes the next surface family: title/header, tab strip, section headers, form rows, select-like fields, checkboxes, scrollbar, and footer.
+**UNKNOWN or optional:** open native dropdown-list rendering; exhaustive hover/focus/active/disabled states; toolbar selected-state refinement; Sheets selected-row refinement; populated MBD-grid behavior; and compatibility with future Onshape DOM/private renderer changes.
 
-Do not generalize these Drawing DOM colors into renderer-native representations or use Drawing-chrome observations as evidence for WebGL paths.
+Do not generalize Drawing DOM colors into renderer-native representations or use Drawing-chrome observations as evidence for WebGL paths. The work-laptop candidate is accepted historical evidence, not the final authoritative Git implementation.
 
 ## Selection and active dimensions
 
@@ -297,6 +544,12 @@ Permissions policy violation: unload is not allowed in this document.
 
 ## Boundaries
 
+**ESTABLISHED by HUMAN, 2026-09-15:** the compact popup On/Off switch was deployed and visually accepted; state persisted across extension reloads and multiple Drawing tabs. **ESTABLISHED by hashes and guarded synchronization:** all six changed toggle files in Chrome-loaded LIVE, the archived candidate, and the Git working copy now match exactly. The manifest and six icons also match LIVE/Git. All 13 implementation files have byte parity; the exact toggle hashes and backup path are recorded in Project State.
+
+**ESTABLISHED by the accepted source:** `chrome.storage.local.enabled` is Boolean, repairs missing/corrupt values to ON, and does not erase `selectedPreset` while OFF. The popup writes storage only and disables palette selection while paused. `bridge.js` validates and relays the settings pair and sets `data-oce-enabled="true|false"`; all 62 CSS rule groups are gated by `:root[data-oce-enabled="true"]`. `theme.js` calls the existing internal renderer `restore()` when a previously enabled realm transitions OFF, leaves a freshly resolved paused realm native, and reapplies the saved preset on ON. This internal toggle path is distinct from the permanently stopping public `restore()`. Settings received before the one-second fallback prevent a default Warm application in a saved OFF realm; storage delay beyond that fallback remains a possible brief default theme interval. The six-file implementation was committed as `3cdff15fafecd11cefd5e6ca2e6a8e2479638b03`. Full toggle-specific renderer log/readback evidence was not captured in this closeout; HUMAN's visual and lifecycle acceptance covers the exercised live behavior.
+
+Title-block and related persistent white/highlight surfaces are optional research. If a bounded source/runtime probe cannot establish an actionable owner, record that result and close the current product without treating it as a failed renderer implementation. An Onshape update may change undocumented internals and selectors; published documentation should state that limitation plainly.
+
 Do not restart broad searches for independent dimension color, canvas highlight control, title-block rendering, persistent white canvas fields, or alternative renderer strategies merely because Drawing-chrome work is active.
 
-Continue authorized Drawing-chrome work through bounded DOM/computed-style inspection and reversible CSS proofs. Do not treat those findings as renderer evidence, modify `theme.js` to own DOM styling, recursively expand the complete DOM, or use generated IDs. Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.
+The accepted work-laptop Drawing UI implementation keeps DOM styling in `drawing-ui.css`, validated preset state and the DOM marker in isolated-world `bridge.js`, and renderer ownership in MAIN-world `theme.js`. Do not treat Drawing-chrome findings as renderer evidence, move DOM styling into `theme.js`, recursively expand the complete DOM, or use generated IDs in production selectors. Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.
