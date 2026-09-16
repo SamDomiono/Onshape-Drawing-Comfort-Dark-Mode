@@ -47,6 +47,73 @@ h1 {
   line-height: 1.15;
 }
 
+.heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.master-control {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  color: #9BAFC4;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.11em;
+  cursor: pointer;
+}
+
+.master-control:has(input:disabled) { cursor: wait; }
+
+.master-control input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.switch-track {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 22px;
+  border: 1px solid #758BA3;
+  border-radius: 999px;
+  background: #6887AA;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.switch-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 19px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #E8E4DC;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  transition: left 140ms ease;
+}
+
+.master-control input:not(:checked) + .switch-track {
+  border-color: #62696E;
+  background: #3A3F44;
+}
+
+.master-control input:not(:checked) + .switch-track::after { left: 3px; }
+
+.master-control:has(input:not(:checked)) { color: var(--text-muted); }
+
+.master-control:has(input:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--focus) 72%, transparent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 .lede {
   margin: 9px 0 20px;
   color: var(--text-muted);
@@ -225,6 +292,13 @@ legend {
 
 fieldset:disabled .preset-card { cursor: wait; }
 
+body.paused .preset-card { opacity: 0.65; cursor: default; }
+body.paused .preset-card:hover { border-color: var(--card-border); background: var(--card); }
+body.paused .preset-card:has(input:checked) {
+  border-color: color-mix(in srgb, var(--sheet) 62%, #5B6065);
+  background: #292C2E;
+}
+
 footer {
   display: flex;
   align-items: center;
@@ -255,5 +329,5 @@ footer.error { color: #FFAAA5; }
 footer.error .footer-hint { visibility: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
-  .preset-card { transition: none; }
+  .preset-card, .switch-track, .switch-track::after { transition: none; }
 }

@@ -12,7 +12,15 @@
     <main>
       <header>
         <p class="eyebrow">Onshape drawings</p>
-        <h1>Drawing comfort</h1>
+        <div class="heading-row">
+          <h1>Drawing comfort</h1>
+          <label class="master-control" for="comfort-enabled">
+            <span id="enable-label">ON</span>
+            <input id="comfort-enabled" type="checkbox" role="switch"
+              aria-label="Drawing comfort" disabled>
+            <span class="switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
         <p class="lede">Choose a sheet palette. Applied to open drawing tabs.</p>
       </header>
 
@@ -88,7 +96,7 @@
         <span id="status-lead">Reading saved preset…</span>
         <strong id="saved-name"></strong>
       </span>
-      <span class="footer-hint">applies instantly</span>
+      <span class="footer-hint" id="footer-hint">applies instantly</span>
     </footer>
   </body>
 </html>

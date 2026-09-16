@@ -1,7 +1,7 @@
 (() => {
   "use strict";
   const VERSION = "0.1.1";
-  const REVISION = "persistence-main-1";
+  const REVISION = "persistent-toggle-main-1";
   const KEY = "__onshapeComfortExtension01";
   const CHANNEL = "onshape-comfort-extension";
   const PROTOCOL = 1;
@@ -90,32 +90,46 @@
   let timer = null;
   let status = "waiting";
   let desiredPreset = null;
+  let desiredEnabled = null;
   let lastAttemptedPreset = null;
+  let lastAttemptedEnabled = null;
   let settingsStatus = "waiting";
   let settingsTimer = null;
   const started = performance.now();
 
   function applyDesiredPreset(reason) {
-    if (!controller || desiredPreset === null ||
-        lastAttemptedPreset === desiredPreset) return;
+    if (stopped || !controller || desiredPreset === null ||
+        desiredEnabled === null ||
+        (lastAttemptedPreset === desiredPreset &&
+         lastAttemptedEnabled === desiredEnabled)) return;
+    const wasEnabled = lastAttemptedEnabled;
     lastAttemptedPreset = desiredPreset;
+    lastAttemptedEnabled = desiredEnabled;
+    if (!desiredEnabled) {
+      // In a newly resolved realm the native snapshot has not been themed.
+      const restored = wasEnabled === true ? controller.restore() : true;
+      log("SETTINGS OFF", { reason, desiredPreset, restored });
+      return;
+    }
     const applied = controller.applyPreset(desiredPreset);
     log("SETTINGS APPLY", { reason, desiredPreset, applied });
   }
 
-  function receiveSettings(presetId, reason) {
+  function receiveSettings(presetId, enabled, reason) {
     if (typeof presetId !== "string" ||
-        !Object.prototype.hasOwnProperty.call(PRESETS, presetId)) {
+        !Object.prototype.hasOwnProperty.call(PRESETS, presetId) ||
+        typeof enabled !== "boolean") {
       log("SETTINGS REJECTED", {
-        reason: "unknown preset ID",
-        received: presetId
+        reason: "invalid preset ID or enabled value",
+        received: { presetId, enabled }
       });
       return;
     }
     clearTimeout(settingsTimer);
     settingsStatus = "received";
     desiredPreset = presetId;
-    log("SETTINGS RECEIVED", { desiredPreset, reason });
+    desiredEnabled = enabled;
+    log("SETTINGS RECEIVED", { desiredPreset, desiredEnabled, reason });
     applyDesiredPreset("settings-received");
   }
 
@@ -127,7 +141,7 @@
         data.protocol !== PROTOCOL ||
         data.direction !== "isolated-to-main" ||
         data.type !== "settings") return;
-    receiveSettings(data.selectedPreset, data.reason);
+    receiveSettings(data.selectedPreset, data.enabled, data.reason);
   });
 
   function resolve() {
@@ -393,6 +407,7 @@
         clearTimeout(timer);
         clearTimeout(settingsTimer);
         lastAttemptedPreset = null;
+        lastAttemptedEnabled = null;
         if (controller) {
           return controller.restore();
         }
@@ -404,7 +419,9 @@
         log("BRIDGE STATE", {
           settingsStatus,
           desiredPreset,
-          lastAttemptedPreset
+          desiredEnabled,
+          lastAttemptedPreset,
+          lastAttemptedEnabled
         });
         if (controller) {
           controller.report();
@@ -432,7 +449,8 @@
     if (desiredPreset !== null) return;
     settingsStatus = "fallback";
     desiredPreset = DEFAULT_PRESET;
-    log("SETTINGS FALLBACK", { desiredPreset });
+    desiredEnabled = true;
+    log("SETTINGS FALLBACK", { desiredPreset, desiredEnabled });
     applyDesiredPreset("settings-timeout");
   }, SETTINGS_WAIT_MS);
 
@@ -455,7 +473,7 @@
       return;
     }
 
-    log("RENDERER READY", { settingsStatus, desiredPreset });
+    log("RENDERER READY", { settingsStatus, desiredPreset, desiredEnabled });
     applyDesiredPreset("renderer-ready"); // No retries after a mutation attempt.
   }
 

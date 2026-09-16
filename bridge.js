@@ -1,12 +1,14 @@
 (() => {
   "use strict";
   const VERSION = "0.1.1";
-  const REVISION = "drawing-ui-bridge-1";
+  const REVISION = "drawing-ui-toggle-bridge-1";
   const KEY = "__onshapeComfortBridge01";
   const CHANNEL = "onshape-comfort-extension";
   const PROTOCOL = 1;
   const STORAGE_KEY = "selectedPreset";
+  const ENABLED_KEY = "enabled";
   const PRESET_ATTRIBUTE = "data-oce-preset";
+  const ENABLED_ATTRIBUTE = "data-oce-enabled";
   const DEFAULT_PRESET = "warm_drafting";
   const VALID_PRESETS = Object.freeze([
     "warm_drafting",
@@ -21,8 +23,10 @@
     console.log(`[Comfort BRIDGE ${id}] ${message} ${JSON.stringify(data)}`);
   let status = "loading";
   let selectedPreset = DEFAULT_PRESET;
+  let enabled = true;
 
   function syncPresetMarker() {
+    document.documentElement.setAttribute(ENABLED_ATTRIBUTE, String(enabled));
     if (validPreset(selectedPreset)) {
       document.documentElement.setAttribute(PRESET_ATTRIBUTE, selectedPreset);
       return;
@@ -38,9 +42,10 @@
       direction: "isolated-to-main",
       type: "settings",
       selectedPreset,
+      enabled,
       reason
     }, location.origin);
-    log("SETTINGS SENT", { selectedPreset, reason });
+    log("SETTINGS SENT", { selectedPreset, enabled, reason });
   }
 
   function isMainMessage(event, type) {
@@ -58,37 +63,49 @@
   });
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== "local" ||
-        !Object.prototype.hasOwnProperty.call(changes, STORAGE_KEY)) return;
-    const next = changes[STORAGE_KEY].newValue;
-    if (validPreset(next)) {
-      selectedPreset = next;
-      status = "ready";
-      postSettings("storage-change");
+    if (areaName !== "local") return;
+    const hasPreset = Object.prototype.hasOwnProperty.call(changes, STORAGE_KEY);
+    const hasEnabled = Object.prototype.hasOwnProperty.call(changes, ENABLED_KEY);
+    if (!hasPreset && !hasEnabled) return;
+
+    const nextPreset = hasPreset ? changes[STORAGE_KEY].newValue : selectedPreset;
+    const nextEnabled = hasEnabled ? changes[ENABLED_KEY].newValue : enabled;
+    const repair = {};
+    if (!validPreset(nextPreset)) repair[STORAGE_KEY] = DEFAULT_PRESET;
+    if (typeof nextEnabled !== "boolean") repair[ENABLED_KEY] = true;
+    if (Object.keys(repair).length) {
+      // Preserve the valid half of a mixed storage update while repairing the
+      // invalid half, so the subsequent repair event relays the complete pair.
+      if (validPreset(nextPreset)) selectedPreset = nextPreset;
+      if (typeof nextEnabled === "boolean") enabled = nextEnabled;
+      log("INVALID STORAGE VALUE; RESETTING DEFAULT", { repair });
+      chrome.storage.local.set(repair)
+        .catch(error => log("DEFAULT RESET FAILED", { reason: error.message }));
       return;
     }
-    log("INVALID STORAGE VALUE; RESETTING DEFAULT", { received: next });
-    chrome.storage.local.set({ [STORAGE_KEY]: DEFAULT_PRESET })
-      .catch(error => log("DEFAULT RESET FAILED", { reason: error.message }));
+    selectedPreset = nextPreset;
+    enabled = nextEnabled;
+    status = "ready";
+    postSettings("storage-change");
   });
 
   async function initialize() {
     try {
-      const stored = await chrome.storage.local.get(STORAGE_KEY);
+      const stored = await chrome.storage.local.get([STORAGE_KEY, ENABLED_KEY]);
       const value = stored[STORAGE_KEY];
-      if (validPreset(value)) {
-        selectedPreset = value;
-        status = "ready";
-        postSettings("storage-load");
-        return;
-      }
-      selectedPreset = DEFAULT_PRESET;
-      await chrome.storage.local.set({ [STORAGE_KEY]: selectedPreset });
+      const state = stored[ENABLED_KEY];
+      selectedPreset = validPreset(value) ? value : DEFAULT_PRESET;
+      enabled = typeof state === "boolean" ? state : true;
+      const repair = {};
+      if (!validPreset(value)) repair[STORAGE_KEY] = selectedPreset;
+      if (typeof state !== "boolean") repair[ENABLED_KEY] = enabled;
+      if (Object.keys(repair).length) await chrome.storage.local.set(repair);
       status = "ready";
-      postSettings(value === undefined ? "default-initialized" : "invalid-repaired");
+      postSettings(Object.keys(repair).length ? "settings-repaired" : "storage-load");
     } catch (error) {
       status = "failed";
       document.documentElement.removeAttribute(PRESET_ATTRIBUTE);
+      document.documentElement.removeAttribute(ENABLED_ATTRIBUTE);
       log("STORAGE INITIALIZATION FAILED", { reason: error.message });
     }
   }
@@ -99,6 +116,23 @@
       return validPreset(stored[STORAGE_KEY])
         ? stored[STORAGE_KEY]
         : DEFAULT_PRESET;
+    },
+    async getEnabled() {
+      const stored = await chrome.storage.local.get(ENABLED_KEY);
+      return typeof stored[ENABLED_KEY] === "boolean" ? stored[ENABLED_KEY] : true;
+    },
+    async setEnabled(next) {
+      if (typeof next !== "boolean") return false;
+      try {
+        await chrome.storage.local.set({ [ENABLED_KEY]: next });
+        enabled = next;
+        status = "ready";
+        postSettings("api-set-enabled");
+        return true;
+      } catch (error) {
+        log("ENABLED SET FAILED", { reason: error.message });
+        return false;
+      }
     },
     async setSelectedPreset(presetId) {
       if (!validPreset(presetId)) {
@@ -132,8 +166,11 @@
       log("STATE", {
         status,
         selectedPreset,
+        enabled,
         storageKey: STORAGE_KEY,
-        presetAttribute: document.documentElement.getAttribute(PRESET_ATTRIBUTE)
+        enabledKey: ENABLED_KEY,
+        presetAttribute: document.documentElement.getAttribute(PRESET_ATTRIBUTE),
+        enabledAttribute: document.documentElement.getAttribute(ENABLED_ATTRIBUTE)
       });
     }
   });

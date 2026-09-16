@@ -1,13 +1,13 @@
 /*
  * Onshape Drawing Comfort Extension
  * Drawing chrome layer
- * Revision: drawing-ui-css-3
+ * Revision: drawing-ui-toggle-css-1
  *
  * Owns legacy Drawing-editor DOM/CSS only.
  * Does NOT own WebGL renderer colors.
  */
 
-:root {
+:root[data-oce-enabled="true"] {
   --oce-ui-background: #50575A;
   --oce-ui-text: #C8D0D8;
   --oce-ui-muted: #7F8A94;
@@ -26,15 +26,15 @@
   --oce-ui-icon-filter: brightness(0) invert(80%);
 }
 
-:root[data-oce-preset="warm_drafting"] {
+:root[data-oce-enabled="true"][data-oce-preset="warm_drafting"] {
   --oce-ui-background: #50575A;
 }
 
-:root[data-oce-preset="slate_graphite"] {
+:root[data-oce-enabled="true"][data-oce-preset="slate_graphite"] {
   --oce-ui-background: #42484E;
 }
 
-:root[data-oce-preset="industrial_cyanotype"] {
+:root[data-oce-enabled="true"][data-oce-preset="industrial_cyanotype"] {
   --oce-ui-background: #3A4148;
 }
 
@@ -43,11 +43,11 @@
    PRIMARY DRAWING TOOLBAR
    ========================================================== */
 
-.xenon-menu.xenon-toolbar.navbar.active-toolbar > .navbar-inner {
+:root[data-oce-enabled="true"] .xenon-menu.xenon-toolbar.navbar.active-toolbar > .navbar-inner {
   background-color: var(--oce-ui-background) !important;
 }
 
-.xenon-menu.xenon-toolbar.navbar.active-toolbar
+:root[data-oce-enabled="true"] .xenon-menu.xenon-toolbar.navbar.active-toolbar
 .toolbar-button > img {
   filter: var(--oce-ui-icon-filter);
 }
@@ -57,18 +57,18 @@
    SHEETS EXPLORER
    ========================================================== */
 
-[data-object-name="OsDrawingExplorer"] {
+:root[data-oce-enabled="true"] [data-object-name="OsDrawingExplorer"] {
   background-color: var(--oce-ui-background) !important;
   color: var(--oce-ui-text) !important;
 }
 
-[data-object-name="OsDrawingExplorer"] .content.flyoutContent {
+:root[data-oce-enabled="true"] [data-object-name="OsDrawingExplorer"] .content.flyoutContent {
   background-color: var(--oce-ui-background) !important;
   color: var(--oce-ui-text) !important;
 }
 
-[data-object-name="OsDrawingExplorer"] .XeLabel,
-[data-object-name="OsDrawingExplorer"] .Wt-label {
+:root[data-oce-enabled="true"] [data-object-name="OsDrawingExplorer"] .XeLabel,
+:root[data-oce-enabled="true"] [data-object-name="OsDrawingExplorer"] .Wt-label {
   color: var(--oce-ui-text) !important;
 }
 
@@ -77,7 +77,7 @@
    RIGHT-SIDE TOGGLE TILES
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="flyoutContainerRow"]
 .toggleButtonContainer
 .btn.toggleBtn.with-icon {
@@ -85,7 +85,7 @@
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="flyoutContainerRow"]
 .toggleButtonContainer
 .btn.toggleBtn.with-icon > img {
@@ -97,13 +97,13 @@
    MEASURE TILE
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="btnElementProperties"].measurementBtn.with-icon {
   background-color: var(--oce-ui-background) !important;
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="btnElementProperties"].measurementBtn.with-icon
 > img[src*="measure-button.svg"] {
   filter: var(--oce-ui-icon-filter);
@@ -114,14 +114,14 @@
    SHARED RIGHT-SIDE FLYOUT SHELL
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="flyoutContentStackedWidget"] {
   background-color: var(--oce-ui-background) !important;
   border-color: var(--oce-ui-border) !important;
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="flyoutContentStackedWidget"]
 > .xenon-flyout-widget {
   background-color: var(--oce-ui-background) !important;
@@ -129,28 +129,28 @@
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .xenon-flyout-widget
 [data-object-name="flyoutHeader"] {
   background-color: var(--oce-ui-background) !important;
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .xenon-flyout-widget
 [data-object-name="flyoutHeader"].header.headerUnderLineSticky {
   background-color: var(--oce-ui-background) !important;
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .xenon-flyout-widget
 [data-object-name="flyoutHeader"]
 [data-object-name="Title"] {
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .xenon-flyout-widget
 [data-object-name="flyoutBody"] {
   background-color: var(--oce-ui-background) !important;
@@ -162,46 +162,46 @@
    SHARED FORM CONTROLS
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 select.XeDropdown,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 input.XeDropdown,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 input.XeSpinBox.Wt-spinbox,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .OsDropdown.OsPropertyPanelDropdown {
   background-color: var(--oce-ui-field) !important;
   color: var(--oce-ui-text) !important;
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 select.XeDropdown:disabled,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 input.XeDropdown:disabled,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 input.XeSpinBox.Wt-spinbox:disabled {
   background-color: var(--oce-ui-disabled-field) !important;
   color: var(--oce-ui-muted) !important;
   border-color: var(--oce-ui-disabled-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="flyoutBody"] .XeLabel {
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 label.checkbox > input + span {
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 label.checkbox > input:disabled + span {
   color: var(--oce-ui-muted) !important;
 }
@@ -211,7 +211,7 @@ label.checkbox > input:disabled + span {
    DRAWING PROPERTIES
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyFlyout"]
 .XeDialogSectionTabContainer {
   background-color: var(--oce-ui-background) !important;
@@ -219,7 +219,7 @@ label.checkbox > input:disabled + span {
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyFlyout"]
 .XeDialogSectionTabHeader {
   background-color: var(--oce-ui-section) !important;
@@ -227,20 +227,20 @@ label.checkbox > input:disabled + span {
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyFlyout"]
 .XeDialogSectionTabHeaderTitle {
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyTab"]
 ul.nav-tabs > li > a {
   background-color: var(--oce-ui-image-tile) !important;
   border-color: var(--oce-ui-image-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyTab"]
 ul.nav-tabs > li.active > a {
   background-color: var(--oce-ui-selected) !important;
@@ -252,20 +252,20 @@ ul.nav-tabs > li.active > a {
    INSPECTION / MBD SECTION BARS
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .os-table-description {
   background-color: var(--oce-ui-section) !important;
   color: var(--oce-ui-text) !important;
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .os-table-description
 .XeLabel.OsCollapsibleText {
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .os-table-description
 .OsCollapsibleButton.btn > img {
   filter: var(--oce-ui-icon-filter);
@@ -276,14 +276,14 @@ ul.nav-tabs > li.active > a {
    INFORMATION NOTICES
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .IntimationMessageContainerStyle {
   background-color: var(--oce-ui-notice) !important;
   color: var(--oce-ui-text) !important;
   border-color: var(--oce-ui-active-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .IntimationMessageContainerStyle .XeLabel {
   color: var(--oce-ui-text) !important;
 }
@@ -293,7 +293,7 @@ ul.nav-tabs > li.active > a {
    INSPECTION / Wt TABLE GRIDS
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .Wt-tv-contents
 .Wt-tv-c:not(.Wt-delegate-edit) {
   background-color: var(--oce-ui-background) !important;
@@ -301,7 +301,7 @@ ul.nav-tabs > li.active > a {
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .Wt-header
 .Wt-tv-c.headerrh {
   background-color: var(--oce-ui-section) !important;
@@ -309,7 +309,7 @@ ul.nav-tabs > li.active > a {
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .Wt-header
 .Wt-label {
   color: var(--oce-ui-text) !important;
@@ -321,24 +321,24 @@ ul.nav-tabs > li.active > a {
    General flyout scrollbars intentionally excluded.
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .tcontainer::-webkit-scrollbar-track {
   background-color: var(--oce-ui-field) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .tcontainer::-webkit-scrollbar-corner {
   background-color: var(--oce-ui-field) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .tcontainer::-webkit-scrollbar-thumb {
   background-color: var(--oce-ui-scroll-thumb) !important;
   border: 2px solid var(--oce-ui-field) !important;
   border-radius: 6px !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 .tcontainer::-webkit-scrollbar-thumb:hover {
   background-color: var(--oce-ui-scroll-thumb-hover) !important;
 }
@@ -348,7 +348,7 @@ ul.nav-tabs > li.active > a {
    STYLES FOOTER
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsStylePropertyFlyout"]
 [data-object-name="flyoutFooter"].footerStylePanel {
   background-color: var(--oce-ui-background) !important;
@@ -356,12 +356,12 @@ ul.nav-tabs > li.active > a {
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsStylePropertyFlyout"]
 .footerStylePanel
 .revertButtonStyle,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsStylePropertyFlyout"]
 .footerStylePanel
 .helpStyle {
@@ -369,7 +369,7 @@ ul.nav-tabs > li.active > a {
   border-color: var(--oce-ui-image-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsStylePropertyFlyout"]
 .footerStylePanel
 .RevertLabelStyle {
@@ -384,7 +384,7 @@ ul.nav-tabs > li.active > a {
    the first persistent candidate shows those tiles remain light.
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyFlyout"]
 [data-object-name="flyoutFooter"].templatepanelfooter {
   background-color: var(--oce-ui-background) !important;
@@ -392,7 +392,7 @@ ul.nav-tabs > li.active > a {
   border-color: var(--oce-ui-border) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyFlyout"]
 [data-object-name="flyoutFooter"].templatepanelfooter
 [data-object-name="OsTemplatePropertiesPanel"] {
@@ -400,14 +400,14 @@ ul.nav-tabs > li.active > a {
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyFlyout"]
 .templatepanelfooter
 label.checkbox > input + span {
   color: var(--oce-ui-text) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsDrawingPropertyFlyout"]
 .templatepanelfooter
 label.checkbox > input:disabled + span {
@@ -429,7 +429,7 @@ label.checkbox > input:disabled + span {
    Preserve native active indication while removing white tabs.
    ========================================================== */
 
-[data-object-name="OsDrawingExplorerTab"]
+:root[data-oce-enabled="true"] [data-object-name="OsDrawingExplorerTab"]
 ul.nav-tabs > li > a {
   background-color: var(--oce-ui-background) !important;
   color: var(--oce-ui-text) !important;
@@ -444,12 +444,12 @@ ul.nav-tabs > li > a {
    the xenon-flyout-right root.
    ========================================================== */
 
-[data-object-name="flyoutToggleButton_OsDrawingExplorer"] {
+:root[data-oce-enabled="true"] [data-object-name="flyoutToggleButton_OsDrawingExplorer"] {
   background-color: var(--oce-ui-background) !important;
   border-color: var(--oce-ui-border) !important;
 }
 
-[data-object-name="flyoutToggleButton_OsDrawingExplorer"] > img {
+:root[data-oce-enabled="true"] [data-object-name="flyoutToggleButton_OsDrawingExplorer"] > img {
   filter: var(--oce-ui-icon-filter) !important;
 }
 
@@ -461,7 +461,7 @@ ul.nav-tabs > li > a {
    neutral chrome text.
    ========================================================== */
 
-[data-object-name="OsDrawingExplorer"]
+:root[data-oce-enabled="true"] [data-object-name="OsDrawingExplorer"]
 .xenon-sheet-nondangling-item
 [data-object-name="t"] {
   color: var(--oce-ui-text) !important;
@@ -475,7 +475,7 @@ ul.nav-tabs > li > a {
    background owner exposed where no cells occupy the viewport.
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 .Wt-itemview.Wt-tableview {
   background-color: var(--oce-ui-background) !important;
@@ -491,7 +491,7 @@ ul.nav-tabs > li > a {
    light background outside populated header cells.
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 .inspection-panel-sticky-header {
   background-color: var(--oce-ui-section) !important;
@@ -507,7 +507,7 @@ ul.nav-tabs > li > a {
    native #F9F9F9 while its footer was already correctly dark.
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsStylePropertyFlyout"]
 .RevertLabelStyle {
   background-color: transparent !important;
@@ -527,46 +527,46 @@ ul.nav-tabs > li > a {
      panelScrollers: 1
    ========================================================== */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 .Wt-itemview.Wt-tableview
 .tcontainer::-webkit-scrollbar,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 [data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar {
   width: 12px !important;
   height: 12px !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 .Wt-itemview.Wt-tableview
 .tcontainer::-webkit-scrollbar-track,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 [data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-track {
   background: var(--oce-ui-field) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 .Wt-itemview.Wt-tableview
 .tcontainer::-webkit-scrollbar-corner,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 [data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-corner {
   background: var(--oce-ui-field) !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 .Wt-itemview.Wt-tableview
 .tcontainer::-webkit-scrollbar-thumb,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 [data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-thumb {
   background: var(--oce-ui-scroll-thumb) !important;
@@ -574,12 +574,12 @@ ul.nav-tabs > li > a {
   border-radius: 6px !important;
 }
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 .Wt-itemview.Wt-tableview
 .tcontainer::-webkit-scrollbar-thumb:hover,
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="OsInspectionPanelFlyout"]
 [data-object-name="tablesContainerWidget"].stylePanelScrollBar::-webkit-scrollbar-thumb:hover {
   background: var(--oce-ui-scroll-thumb-hover) !important;
@@ -594,26 +594,26 @@ ul.nav-tabs > li > a {
 
 /* Top-toolbar view/update assets with meaningful native detail. */
 
-.xenon-menu.xenon-toolbar.navbar.active-toolbar
+:root[data-oce-enabled="true"] .xenon-menu.xenon-toolbar.navbar.active-toolbar
 .toolbar-button[data-object-name="button_ID_DRAWINGVIEW"] > img,
 
-.xenon-menu.xenon-toolbar.navbar.active-toolbar
+:root[data-oce-enabled="true"] .xenon-menu.xenon-toolbar.navbar.active-toolbar
 .toolbar-button[data-object-name="button_ID_PROJECTEDVIEW"] > img,
 
-.xenon-menu.xenon-toolbar.navbar.active-toolbar
+:root[data-oce-enabled="true"] .xenon-menu.xenon-toolbar.navbar.active-toolbar
 .toolbar-button[data-object-name="button_ID_AUXILIARYVIEW"] > img,
 
-.xenon-menu.xenon-toolbar.navbar.active-toolbar
+:root[data-oce-enabled="true"] .xenon-menu.xenon-toolbar.navbar.active-toolbar
 .toolbar-button[data-object-name="button_ID_OSBROKENOUTSECTIONVIEW"] > img,
 
-.xenon-menu.xenon-toolbar.navbar.active-toolbar
+:root[data-oce-enabled="true"] .xenon-menu.xenon-toolbar.navbar.active-toolbar
 .toolbar-button[data-object-name="button_ID_OSUPDATE"] > img {
   filter: none !important;
 }
 
 /* Four main right-side flyout icons; Measure remains filtered. */
 
-.xenon-flyout-widget-container.xenon-flyout-right
+:root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 [data-object-name="flyoutContainerRow"]
 .toggleButtonContainer
 .btn.toggleBtn.with-icon > img {

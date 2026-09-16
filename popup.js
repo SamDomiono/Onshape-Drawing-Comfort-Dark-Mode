@@ -1,8 +1,9 @@
 (() => {
   "use strict";
 
-  const REVISION = "preset-popup-2";
+  const REVISION = "preset-popup-toggle-1";
   const STORAGE_KEY = "selectedPreset";
+  const ENABLED_KEY = "enabled";
   const DEFAULT_PRESET = "warm_drafting";
 
   const PRESETS = Object.freeze({
@@ -33,8 +34,13 @@
   const status = document.querySelector("#status");
   const statusLead = document.querySelector("#status-lead");
   const savedName = document.querySelector("#saved-name");
+  const footerHint = document.querySelector("#footer-hint");
+  const toggle = document.querySelector("#comfort-enabled");
+  const enableLabel = document.querySelector("#enable-label");
   const radios = Array.from(document.querySelectorAll('input[name="preset"]'));
   let currentPreset = null;
+  let currentEnabled = null;
+  let busy = true;
 
   function isKnownPreset(presetId) {
     return Object.prototype.hasOwnProperty.call(PRESETS, presetId);
@@ -47,10 +53,22 @@
     currentPreset = presetId;
   }
 
-  function showSaved(presetId) {
+  function showSaved() {
+    if (!isKnownPreset(currentPreset) || typeof currentEnabled !== "boolean") return;
     status.classList.remove("error");
-    statusLead.textContent = "Saved ·";
-    savedName.textContent = PRESETS[presetId].name;
+    statusLead.textContent = currentEnabled ? "Saved ·" : "Paused ·";
+    savedName.textContent = PRESETS[currentPreset].name;
+    footerHint.textContent = currentEnabled ? "applies instantly" : "switch on to apply";
+  }
+
+  function showEnabled(enabled) {
+    currentEnabled = enabled;
+    toggle.checked = enabled;
+    enableLabel.textContent = enabled ? "ON" : "OFF";
+    document.body.classList.toggle("paused", !enabled);
+    options.disabled = busy || !enabled;
+    toggle.disabled = busy;
+    showSaved();
   }
 
   function showError(message) {
@@ -68,25 +86,35 @@
 
   async function initialize() {
     try {
-      const stored = await chrome.storage.local.get(STORAGE_KEY);
+      const stored = await chrome.storage.local.get([STORAGE_KEY, ENABLED_KEY]);
       let selectedPreset = stored[STORAGE_KEY];
+      let enabled = stored[ENABLED_KEY];
+      const repair = {};
 
       if (!isKnownPreset(selectedPreset)) {
         selectedPreset = DEFAULT_PRESET;
-        showSelection(selectedPreset);
-        await storePreset(selectedPreset);
-      } else {
-        showSelection(selectedPreset);
+        repair[STORAGE_KEY] = selectedPreset;
+      }
+      if (typeof enabled !== "boolean") {
+        enabled = true;
+        repair[ENABLED_KEY] = enabled;
       }
 
-      showSaved(selectedPreset);
-      options.disabled = false;
+      showSelection(selectedPreset);
+      showEnabled(enabled);
+      if (Object.keys(repair).length) await chrome.storage.local.set(repair);
+
+      busy = false;
+      showEnabled(enabled);
     } catch (error) {
       console.error(`[Onshape Comfort ${REVISION}] initialization failed`, error);
       if (!isKnownPreset(currentPreset)) {
         showSelection(DEFAULT_PRESET);
       }
       showError("Could not read preset");
+      busy = true;
+      options.disabled = true;
+      toggle.disabled = true;
     }
   }
 
@@ -104,8 +132,10 @@
     }
 
     showSelection(presetId);
-    showSaved(presetId);
+    busy = true;
+    showSaved();
     options.disabled = true;
+    toggle.disabled = true;
 
     try {
       await storePreset(presetId);
@@ -116,7 +146,29 @@
       }
       showError("Could not save preset");
     } finally {
-      options.disabled = false;
+      busy = false;
+      options.disabled = !currentEnabled;
+      toggle.disabled = false;
+    }
+  }
+
+  async function handleToggle() {
+    const previous = currentEnabled;
+    const next = toggle.checked;
+    if (typeof previous !== "boolean" || next === previous) return;
+    busy = true;
+    showEnabled(next);
+
+    try {
+      await chrome.storage.local.set({ [ENABLED_KEY]: next });
+    } catch (error) {
+      console.error(`[Onshape Comfort ${REVISION}] toggle write failed`, error);
+      showEnabled(previous);
+      showError("Could not save switch");
+    } finally {
+      busy = false;
+      options.disabled = !currentEnabled;
+      toggle.disabled = false;
     }
   }
 
@@ -138,11 +190,22 @@
   for (const radio of radios) {
     radio.addEventListener("change", handleSelection);
   }
+  toggle.addEventListener("change", handleToggle);
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== "local" || !Object.prototype.hasOwnProperty.call(changes, STORAGE_KEY)) {
-      return;
+    if (areaName !== "local") return;
+
+    if (Object.prototype.hasOwnProperty.call(changes, ENABLED_KEY)) {
+      const enabled = changes[ENABLED_KEY].newValue;
+      if (typeof enabled === "boolean") {
+        showEnabled(enabled);
+      } else {
+        void chrome.storage.local.set({ [ENABLED_KEY]: true })
+          .catch(error => showError(`Could not repair switch: ${error.message}`));
+      }
     }
+
+    if (!Object.prototype.hasOwnProperty.call(changes, STORAGE_KEY)) return;
 
     const selectedPreset = changes[STORAGE_KEY].newValue;
 
@@ -152,7 +215,7 @@
     }
 
     showSelection(selectedPreset);
-    showSaved(selectedPreset);
+    showSaved();
   });
 
   console.info(`[Onshape Comfort ${REVISION}] BOOT`);
