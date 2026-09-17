@@ -1,7 +1,7 @@
 (() => {
   "use strict";
   const VERSION = "0.1.1";
-  const REVISION = "persistent-toggle-main-1";
+  const REVISION = "note-preview-main-1";
   const KEY = "__onshapeComfortExtension01";
   const CHANNEL = "onshape-comfort-extension";
   const PROTOCOL = 1;
@@ -144,6 +144,135 @@
     receiveSettings(data.selectedPreset, data.enabled, data.reason);
   });
 
+  // Note previews use 0xC2RRGGBB true color, unlike the accepted BGR palette.
+  function createNotePreview(doc, dev, rendererIdentity) {
+    const eventName = "Update_XeGsGeometryChunks";
+    const originals = new Map(); // Only the currently themed object set is retained.
+    let targetColor = null;
+    let listening = false;
+    let suspended = false;
+    let busy = false;
+
+    const qualifies = chunk =>
+      chunk?.m_ClassName === "XeGsSimpleChunk" &&
+      chunk.m_TrackerName === "CFxNoteEditorTracker" &&
+      chunk.m_Owner === -2 && chunk.m_OwnerBlock === "0" &&
+      chunk.m_Type === "WS" && Array.isArray(chunk.m_Items) &&
+      chunk.m_Items.length > 0 &&
+      chunk.m_Items.every(item => item?.m_ClassName === "XeGsTextItem");
+
+    function restoreChunk(chunk, saved) {
+      // Do not overwrite a newer native assignment made by the editor.
+      if (chunk.m_Color !== saved.applied) return false;
+      chunk.m_Color = saved.original;
+      return true;
+    }
+
+    function restoreAll() {
+      let changed = false;
+      for (const [chunk, saved] of originals) {
+        try { changed = restoreChunk(chunk, saved) || changed; }
+        catch (error) { log("NOTE PREVIEW RESTORE FAILED", { reason: error.message }); }
+      }
+      originals.clear();
+      return changed;
+    }
+
+    function redraw(changed) {
+      if (!changed) return;
+      try { dev.invalidateServerTrackers(); }
+      catch (error) { log("NOTE PREVIEW REDRAW FAILED", { reason: error.message }); }
+    }
+
+    function listen(enable) {
+      if (enable === listening) return;
+      listening = enable;
+      const method = enable ? "addEventListener" : "removeEventListener";
+      document[method](eventName, onChunksUpdate);
+      window[method]("pagehide", onPageHide);
+      window[method]("pageshow", onPageShow);
+    }
+
+    function sync() {
+      if (busy || targetColor === null || suspended) return;
+      busy = true;
+      let changed = false;
+      try {
+        check(rendererIdentity(), "Note preview renderer identity changed");
+        check(typeof dev.invalidateServerTrackers === "function",
+          "Note preview redraw unavailable");
+        const chunks = dev.m_Chunks;
+        check(chunks?.m_ClassName === "XeGsGeometryChunks",
+          "Note preview chunk collection unavailable");
+        const command = doc.m_XeCommandProcessor;
+        const active = window.noteEditorHandler?.isNoteEditorActive?.() === true &&
+          command?.m_CommandStarted === true &&
+          ["_OSNOTE", "_OSEDITNOTE_INTERNAL"].includes(command.m_CommandGlobalName);
+        const current = new Set(active ? Object.values(chunks).filter(qualifies) : []);
+        for (const [chunk, saved] of originals) {
+          if (!current.has(chunk)) {
+            changed = restoreChunk(chunk, saved) || changed;
+            originals.delete(chunk);
+          }
+        }
+        for (const chunk of current) {
+          const descriptor = Object.getOwnPropertyDescriptor(chunk, "m_Color");
+          check(descriptor && "value" in descriptor && descriptor.writable &&
+            Number.isInteger(descriptor.value), "Unexpected Note preview color field");
+          let saved = originals.get(chunk);
+          if (!saved) {
+            saved = { original: descriptor.value, applied: descriptor.value };
+            originals.set(chunk, saved);
+          } else if (descriptor.value !== saved.applied) {
+            // Same object, but Onshape supplied a new native formatting color.
+            saved.original = descriptor.value;
+          }
+          if (chunk.m_Color !== targetColor) {
+            chunk.m_Color = targetColor;
+            changed = true;
+          }
+          saved.applied = targetColor;
+        }
+      } catch (error) {
+        changed = restoreAll() || changed;
+        targetColor = null;
+        listen(false);
+        log("NOTE PREVIEW DISABLED", { reason: error.message });
+      } finally {
+        busy = false;
+        redraw(changed);
+      }
+    }
+
+    function onChunksUpdate(event) {
+      if (event.m_Item === dev.m_Chunks) sync();
+    }
+    function onPageHide() {
+      suspended = true;
+      redraw(restoreAll());
+    }
+    function onPageShow() {
+      suspended = false;
+      sync();
+    }
+
+    return {
+      setTheme(theme) {
+        targetColor = theme ? (0xC2000000 | parseInt(theme.foreground.slice(1), 16)) : null;
+        listen(targetColor !== null);
+        if (targetColor === null) redraw(restoreAll());
+        else sync();
+      },
+      report: () => ({
+        listening, suspended, targetColor, retainedObjects: originals.size,
+        chunks: Array.from(originals, ([chunk, saved]) => ({
+          id: chunk.m_Id, original: saved.original,
+          applied: saved.applied, current: chunk.m_Color
+        }))
+      })
+    };
+  }
+
   function resolve() {
     check(typeof window.getXeApplication === "function", "engine not ready");
     const app = window.getXeApplication();
@@ -209,6 +338,8 @@
         material.shader?.shaderName === "PaperOptimized" &&
         material.uniforms.color === color;
     };
+
+    const notePreview = createNotePreview(doc, dev, identity);
 
     const write = values => {
       pal[7] = values.ink;
@@ -284,6 +415,8 @@
         return false;
       }
 
+      notePreview.setTheme(action === "APPLY" ? theme : null);
+
       // A redraw failure does not undo already-verified color writes.
       try {
         dev.invalidateScene();
@@ -357,12 +490,16 @@
       apply,
       applyPreset,
       listPresets,
-      restore: () => change("RESTORE", original, null),
+      restore: () => {
+        notePreview.setTheme(null);
+        return change("RESTORE", original, null);
+      },
       report: () => log("STATE", {
         status,
         activePreset,
         activeTheme,
         sameReferences: identity(),
+        notePreview: notePreview.report(),
         original,
         current: snapshot(),
         sheetResolver: {

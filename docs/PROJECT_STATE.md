@@ -1,9 +1,11 @@
-﻿# Onshape Drawing Comfort Extension — Project State
+# Onshape Drawing Comfort Extension — Project State
 
-**Updated:** 2026-09-16 — accepted implementation committed; technical closeout
+**Updated:** 2026-09-17 — accepted V2 promoted to the primary deployed directory and authoritative Git source
 **Product authority:** HUMAN
-**Manifest version:** 0.1.1
-**MAIN-world revision:** `persistent-toggle-main-1`
+**Manifest version:** 0.2.0
+**Authoritative MAIN-world revision:** `note-preview-main-1`
+**September 16 baseline MAIN revision:** `persistent-toggle-main-1`
+**Work-laptop corroborating MAIN revision:** `note-preview-main-1`
 **Isolated-world revision:** `drawing-ui-toggle-bridge-1`
 **Drawing CSS revision:** `drawing-ui-toggle-css-1`
 **Popup revision:** `preset-popup-toggle-1`
@@ -20,10 +22,10 @@ Unified foreground is the accepted architecture. Independent dimension color is 
 
 ## Filesystem and operational workflow
 
-Chrome loads the unpacked extension from:
+The current primary deployed, known-good V2 extension is:
 
 ```text
-C:\Users\swehr\Documents\ONSHAPE-COMFORT-EXTENSION-LIVE
+C:\Users\swehr\Documents\ONSHAPE-COMFORT-EXTENSION-V2
 ```
 
 The Git-controlled mirror and project documentation are stored in:
@@ -32,7 +34,7 @@ The Git-controlled mirror and project documentation are stored in:
 C:\AI_WORK\ONSHAPE-COMFORT-EXTENSION
 ```
 
-Historical backups and Drawing research are now under `C:\AI_WORK\ONSHAPE-COMFORT-EXTENSION-BACKUPS`. The main workstation's Chrome-loaded LIVE folder remains in Documents. `C:\AI_WORK\BB` is a separate local-agent workspace; its historical backup is not an extension deployment backup. Preserve dated backups as revision snapshots rather than mixing them into the current source tree.
+Historical backups and Drawing research are under `C:\AI_WORK\ONSHAPE-COMFORT-EXTENSION-BACKUPS`. The former primary-workstation `ONSHAPE-COMFORT-EXTENSION-LIVE` directory is historical only and is preserved there; it is no longer an active deployment directory under Documents. `C:\AI_WORK\BB` is a separate local-agent workspace; its historical backup is not an extension deployment backup. Preserve dated backups as revision snapshots rather than mixing them into the current source tree.
 
 The established workflow is:
 
@@ -705,11 +707,95 @@ The unchanged `manifest.json` is `884FAC5A719CFC62E0CB56A03BA92D12B3E31B368ED2AC
 
 The six implementation files were committed on `master` as `3cdff15fafecd11cefd5e6ca2e6a8e2479638b03` (`Add persistent Drawing comfort toggle`), with 335 insertions and 135 deletions. Before that commit, HEAD was `73cef83808973c93272c2d92bcf52065ba5351bf` (`Preserve native detail in selected Drawing icons`). The workstation checked manifest version 0.1.1, Node syntax for the three changed JavaScript files, exact LIVE/Git hashes, staged file names, and `git diff --cached --check` before committing. The implementation commit left only `docs/PROJECT_STATE.md` and `docs/RENDERER_FINDINGS.md` modified. This document describes the accepted implementation commit; the documentation commit ID is recorded separately by Git after these files are committed.
 
-The current product is technically closed and accepted for personal use. Title-block and associated persistent white/selectable-field behavior remain a separate, optional bounded research question; an unsuccessful investigation does not reopen the accepted renderer, Drawing UI, popup, or toggle work. The current implementation can be shared on its accepted feature set once distribution materials are written and reviewed. An MIT license is a proposed choice, not a license already applied. A public README should show installation and before/after examples, document known limitations and reliance on undocumented Onshape internals, and describe support as best-effort. No publication or public repository is claimed here.
+The September 16 product baseline remains technically closed and accepted for personal use at commit `3cdff15fafecd11cefd5e6ca2e6a8e2479638b03`. Subsequent bounded V2 work did not invalidate that historical closeout. The title-block branch has been closed without production implementation, while the separately scoped active-Note preview problem produced the accepted V2 implementation described below. On September 17, byte parity between the primary deployed V2 and work-laptop transfer was established before that V2 was promoted into authoritative Git; this is a later integration milestone, not a rewrite of the September 16 baseline.
 
-The final documentation step is to place these two reviewed markdowns in `docs/`, compare them with the currently modified repository copies, run `git diff --check`, and commit only the documentation files. Verify the resulting worktree is clean and retain the dated recovery snapshot and research archive. The technical acceptance does not depend on title-block research succeeding.
+The current implementation can be shared on its accepted feature set with the repository's `README.txt`, developer roadmap in `AGENTS.md`, and BSD Zero Clause License in `LICENSE.txt`. The README documents installation, known limitations, reliance on undocumented Onshape internals, and best-effort support. No publication or public repository is claimed here.
 
 The 2026-09-14 sandbox hashes and `6d4cba6` remain historical milestones. Neither is the verified September 16 toggle baseline.
+
+## Closed title-block research branch — no production implementation
+
+The September 15–16 title-block investigation established that the visible pale field backgrounds and the broad selected-field band are renderer-owned surfaces with narrow reversible color seams. The pale field geometry was observed as direct-color `#E0E0E0` (`0xC2E0E0E0`) rather than palette-index-7 output; an instance-only draw-argument override recolored it without changing the sheet, ordinary geometry, selection band, or grips. The selected-field band was traced through `CFxHighlightTracker` / `XeEntityPreview`; changing only the existing selected-field preview decoration recolored that band independently and restoration succeeded. These experiments proved *mechanical color feasibility*, not a production-safe title-block classifier.
+
+A guarded Stage A was then authorized specifically to establish a defensible title-field discriminator before any V2 source edit. That gate failed. Editable fields and sampled static title-block text shared `XeText` / `AcDbMText`, generic `_CLIENTEDIT` behavior, `editorType: 1`, paper-space ownership, and overlapping style/entity characteristics. `Onshape-Standard-Fields` remained a useful correlation but did not prove semantic title-field ownership; owner block `*Paper_Space` was also generic. No safely queryable combination of entity class, layer, owner, paper-space membership, editability, editor type, or observed style established the isolation standard required by the project.
+
+Therefore the correct closeout is **not** “the pixels cannot be recolored.” It is: **no defensible production classifier was established that can guarantee the extension is recoloring only the intended title-block fields/highlights.** Stage A stopped at guard validation, no title-block source change was installed, and Stage B was not opened. The pre-stage backup was created, but `theme.js` remained the accepted September 16 value `1BC69A4C4CFD370316454F33F354CD92ED7F29E3864F1126799DF6C2A58A807F`. All temporary runtime probes were cleaned up.
+
+This branch is closed as **technically color-feasible but product-infeasible under the current isolation standard**. Do not reopen title-block Stage A/B, generic selection/highlight archaeology, or style-based title-field heuristics unless a future Onshape API/runtime change exposes a genuinely semantic discriminator or HUMAN explicitly authorizes a weaker scoping rule.
+
+## Accepted V2 active-Note preview implementation — `note-preview-main-1`
+
+A separate bounded investigation addressed the transient black text shown while creating or editing an ordinary Drawing Note. Unlike the title-block branch, this investigation found a deterministic editor-owned runtime seam. CDP reached the cross-origin production Drawing execution context directly and established that active Note text is transient WebGL geometry, not the offscreen DOM input delegate.
+
+The preview appears in `getXeApplication().m_XeDocuments[0].m_XeGsDevice.m_Chunks` as `XeGsSimpleChunk` objects containing `XeGsTextItem` glyph geometry. Tested preview chunks carried `m_TrackerName = "CFxNoteEditorTracker"`, `m_Owner = -2`, `m_OwnerBlock = "0"`, and `m_Type = "WS"`. Chunk identity is intentionally treated as ephemeral: typing can destroy one preview chunk and replace it with multiple new chunks. The chunk collection's `Update_XeGsGeometryChunks` event provides event-driven reacquisition without polling.
+
+Controlled runtime proof changed only qualifying preview chunks' `m_Color`, called `invalidateServerTrackers()`, and visibly changed only the active typed Note text. The diagnostic color did not persist into the committed Note. Reopening the committed Note created fresh native preview geometry. The implementation therefore preserves the existing committed-note and palette-index-7 behavior rather than changing Note data.
+
+ASTRA implemented the guarded prototype solely in V2 `theme.js` as revision `note-preview-main-1`. The implementation uses active Note-editor/command guards, strict `CFxNoteEditorTracker` filtering, `Update_XeGsGeometryChunks` reacquisition, per-object original-color retention, restoration/release of replaced objects, `invalidateServerTrackers()` redraw, and listener cleanup on OFF/Restore/page lifecycle. No polling, prototype override, or palette-index-7 redesign was introduced.
+
+V2 `theme.js` transition:
+
+```text
+pre-Note accepted baseline:
+1BC69A4C4CFD370316454F33F354CD92ED7F29E3864F1126799DF6C2A58A807F
+
+accepted Note-preview V2:
+43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC
+```
+
+ASTRA's live acceptance matrix passed Warm Drafting, Slate Graphite, Industrial Cyanotype, existing-Note editing, commit isolation, live preset changes while the editor remained open, OFF restoration, ON reacquisition, and reload/realm replacement without listener accumulation. An explicit-color probe produced distinct black and red preview runs (`0xC2000000` and `0xC2FF0000`); V2 captured and restored each object's actual original color independently, and commit/reopen preserved the native explicit colors. At final instrumented closeout the editor was closed with zero retained preview objects and no runtime instrumentation remaining.
+
+HUMAN then visually accepted the feature on the primary workstation and physically transferred the V2 folder to the work laptop. The work-laptop V2 was loaded and the revised Note editor was again confirmed functional through the established presets/toggle/tab/reload behavior. This provides independent cross-machine HUMAN acceptance of the implementation.
+
+Remaining Note-specific UNKNOWN items are exhaustive formatting combinations, exhaustive print/PDF/export behavior, and future compatibility of these private Onshape interfaces. The commit-isolation evidence strongly supports presentation-only ownership but does not convert untested output paths into established facts.
+
+Primary-workstation consolidation verified the complete authoritative implementation set against the work-laptop V2 transfer, promoted the accepted primary V2 bytes into Git, and completed local syntax, manifest, hash, and diff validation. No further renderer archaeology is required unless later filesystem evidence or HUMAN testing contradicts the established model.
+
+## 2026-09-17 work-laptop promotion and transfer closeout
+
+Read-only inventory on the work laptop found no current authoritative Git checkout under `C:\Users\swehrli\Documents`. The only Git repository available was the explicitly historical USB baseline:
+
+```text
+D:\ONSHAPE-COMFORT-EXTENSION-REPO_BASELINE_20260914_29cd918
+HEAD: 29cd918ecbbc3f672def78a64dbe19c931aac143
+message: Document Drawing chrome investigation
+```
+
+That repository predates the accepted Drawing UI/toggle baseline and was preserved without modification. Under the release instructions this was Case B, so no Git commit was created on the work laptop; commit `3cdff15fafecd11cefd5e6ca2e6a8e2479638b03` remained the latest documented authoritative implementation commit until the later primary-workstation V2 integration.
+
+The complete non-backup file sets in local V2 and USB V2 were byte-identical. Both accepted V2 `theme.js` files were 19,385 bytes and hashed to:
+
+```text
+43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC
+```
+
+Source review confirmed that `note-preview-main-1` materially matches the accepted architecture documented above. Node syntax checking passed before work-laptop promotion. The work-laptop production LIVE manifest remained at version `0.1.1` with SHA-256 `884FAC5A719CFC62E0CB56A03BA92D12B3E31B368ED2AC8300B527DF2E266ECE`. The later authoritative primary V2 and corroborating V2 transfer instead agree on the accepted version `0.2.0` manifest with SHA-256 `AB7E5B4825158FB771185E8239B1E6C305AF665FA52E5536F262180F126B4A0C`; that complete V2 implementation set was promoted to Git during final consolidation.
+
+Before promotion, the exact production `theme.js` was copied to:
+
+```text
+C:\Users\swehrli\Documents\Codex\2026-09-17\from-sol-chat-to-codex-gpt\outputs\ONSHAPE-COMFORT-RECOVERY-pre-note-promotion-20260917-071741\theme.js
+```
+
+The source and recovery copy both hashed to the pre-Note value `1BC69A4C4CFD370316454F33F354CD92ED7F29E3864F1126799DF6C2A58A807F`. Only `theme.js` was then promoted into:
+
+```text
+C:\Users\swehrli\Documents\ONSHAPE-COMFORT-EXTENSION-LIVE
+```
+
+The promoted LIVE file is byte-identical to the accepted local/USB V2 candidate and hashes to `43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC`. All other 12 production implementation files retained the accepted September 16 hashes.
+
+A fresh Drawing realm reported `note-preview-main-1`, exact Warm Drafting renderer readback, and successful Apply/redraw. HUMAN-visible browser smoke showed readable themed active-Note text, continued typing through preview replacement, and successful cancellation with the temporary uncommitted Note removed and no Note-preview runtime errors logged. Chrome's automation boundary did not permit operating `chrome://extensions`, so an automated click of the unpacked-extension Reload control and a complete popup-driven OFF/ON/preset matrix were not re-executed during this consolidation. This does not replace the already established cross-machine HUMAN acceptance; it records the narrower evidence produced during work-laptop promotion.
+
+The primary-workstation transfer set is:
+
+```text
+ONSHAPE-COMFORT-EXTENSION-PRIMARY-TRANSFER-20260917\theme.js
+ONSHAPE-COMFORT-EXTENSION-PRIMARY-TRANSFER-20260917\docs\PROJECT_STATE.md
+ONSHAPE-COMFORT-EXTENSION-PRIMARY-TRANSFER-20260917\docs\RENDERER_FINDINGS.md
+```
+
+That historical transfer set intentionally excluded the V2 manifest and unchanged implementation files. Final primary-workstation consolidation instead compared all 13 authoritative implementation files, established byte parity between primary V2 and the work-laptop V2 transfer, promoted the complete accepted V2 set into Git, and verified primary/Git byte parity before commit.
 
 ## Product backlog and boundaries
 
@@ -720,8 +806,8 @@ Optional polish remains intentionally outside the accepted Drawing UI increment:
 - toolbar selected-state refinement;
 - Sheets selected-row refinement;
 - populated MBD-grid confirmation if a suitable live state becomes available;
-- title-block or persistent white selectable-field research, with a bounded Astra charter and a clear stop condition;
-- canvas selection/highlight research in its segregated side quest;
+- title-block/persistent-field implementation is closed under the current isolation standard; do not reopen without new semantic evidence or explicit HUMAN authorization;
+- generic canvas selection/highlight archaeology remains closed; the proven title-field preview color seam is not a safe global selection-color rule;
 - independent dimension color only if a new product requirement justifies reopening it.
 
 The work-laptop implementation proved the general Inspection table-stack scrollbar owner as well as table scrollers, so the prior uncertainty about that specific panel scrollbar is closed for the tested runtime. Do not generalize that evidence to every unrelated flyout scrollbar without a bounded observation.
@@ -736,6 +822,7 @@ The work-laptop implementation proved the general Inspection table-stack scrollb
 - The DOM message bridge remains an application coordination boundary, not a privileged security boundary.
 - The cause of one historical RESTORE stale-pixel observation remains unknown and is not reproducible in the current runtime.
 - The cause of one historical invalid-input-time visual flicker remains unknown; the rejection path performed no extension write or invalidation.
+- Active-Note preview exhaustive formatting combinations and exhaustive print/PDF/export behavior are not tested; private `CFxNoteEditorTracker` / chunk-event internals may change in future Onshape builds.
 - No automated browser integration suite exists; renderer and DOM validation remain controlled live testing with logs, exact hashes/readback, bounded probes, and HUMAN visual acceptance.
 
-Do not reopen completed renderer archaeology, independent dimension-color research, or the historical RESTORE anomaly without contradictory current-runtime evidence or a newly authorized bounded requirement. Do not use generated IDs, unscoped iframe-wide selectors, or recursive full-DOM expansion. Keep renderer ownership in `theme.js` and Drawing DOM styling in `drawing-ui.css`.
+Do not reopen completed renderer archaeology, title-block Stage A/B, generic selection/highlight archaeology, independent dimension-color research, or the historical RESTORE anomaly without contradictory current-runtime evidence or a newly authorized bounded requirement. Do not use generated IDs, unscoped iframe-wide selectors, or recursive full-DOM expansion. Keep renderer ownership in `theme.js` and Drawing DOM styling in `drawing-ui.css`.

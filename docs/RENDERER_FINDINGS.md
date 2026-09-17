@@ -1,7 +1,9 @@
 # Onshape Drawing Comfort Extension — Renderer Findings
 
-**Updated:** 2026-09-16 — accepted toggle implementation and technical closeout
-**Current accepted MAIN revision:** `persistent-toggle-main-1`
+**Updated:** 2026-09-17 — accepted active-Note preview V2 promoted to primary deployment and authoritative Git
+**Current authoritative MAIN revision:** `note-preview-main-1`
+**September 16 baseline MAIN revision:** `persistent-toggle-main-1`
+**Work-laptop corroborating MAIN revision:** `note-preview-main-1`
 **Current accepted bridge revision:** `drawing-ui-toggle-bridge-1`
 **Current accepted Drawing CSS revision:** `drawing-ui-toggle-css-1`
 **Current accepted popup revision:** `preset-popup-toggle-1`
@@ -528,7 +530,101 @@ Do not generalize Drawing DOM colors into renderer-native representations or use
 - This is transient and normally occurs only while moving or editing the dimension.
 - During new-dimension creation, selected entities illuminate correctly and the moving dimension remains themed and readable until placement.
 
-Selection/highlight behavior is therefore optional backlog, not a canvas-theme blocker. Selection geometry is architecturally distinct from ordinary visible dimension geometry; do not infer its control path from identifier names.
+General selection/highlight behavior remains nonblocking and is not a current implementation target. The later title-block research proved a field-selection preview seam but failed the semantic title-field isolation gate; that result must not be generalized into a global selection-color rule. Selection geometry remains architecturally distinct from ordinary visible dimension geometry; do not infer its control path from identifier names.
+
+## Title-block highlight / pale-field research — final boundary
+
+### Mechanical color ownership — ESTABLISHED
+
+The bounded title-block investigation proved two independent renderer-owned surfaces in the tested sandbox:
+
+- **Pale field backgrounds:** main WebGL2 geometry, observed direct color `m_Color = 0xC2E0E0E0` (`kByColor`, RGB `#E0E0E0`), distinct from palette index 7. A temporary instance-only `DrawChunkInternal` draw-argument override recolored the validated field-fill chunk while leaving sheet, ordinary geometry, selected-field band, and grips unchanged. The stored chunk color was not changed and the original method/descriptor was restored.
+- **Broad selected-field band:** main-selection preview geometry through `CFxHighlightTracker.drawTrackerGl` → `createXePreview` → main selection `m_XePreview` → `XeEntityPreview`. The tested native selection decoration used `[204,146,92]`; changing only that existing preview decoration to `[95,145,170]` recolored the band while leaving pale field geometry and grips unchanged, and exact value restoration succeeded.
+
+The same investigation established that grips belong to a separate interaction canvas, that dimensions share the general main-preview mechanism, and that mixed field+dimension selection can occupy the same preview. Opening/cancelling a title field's Note editor regenerated field geometry and changed offsets, so retained chunk IDs/offsets are not durable selectors.
+
+### Production discriminator — NOT ESTABLISHED
+
+The later guarded Stage A did not pass its prerequisite isolation gate. No source modification was installed. Sampled editable fields and static title-block text shared `XeText` / `AcDbMText`, generic `_CLIENTEDIT` behavior, `editorType: 1`, and overlapping paper-space/style characteristics. `Onshape-Standard-Fields` was a correlation in the tested template, not semantic proof that an entity is one of the intended title fields. `*Paper_Space` ownership is likewise generic. Entity class, layer, owner, paper-space membership, editability, editor type, and observed style did not establish a defensible title-field classifier.
+
+Therefore the final engineering conclusion is deliberately narrower than either “feasible” or “impossible” in isolation:
+
+> **The target pixels have proven narrow color seams, but no production-safe semantic classifier was established that isolates only the intended title-block fields/highlights. Under the project's fail-closed isolation standard, title-block implementation is closed as infeasible with the currently established evidence.**
+
+Stage B was not opened. The existing September 16 `theme.js` stayed byte-identical at `1BC69A4C4CFD370316454F33F354CD92ED7F29E3864F1126799DF6C2A58A807F` through title-block closeout. Do not resurrect the branch using style-only, all-`XeText`, all-paper-space, all-selection-preview, screen-region, or fixed-offset heuristics. Reopen only if a future runtime/API supplies genuinely semantic ownership evidence or HUMAN explicitly accepts broader behavior.
+
+## Active Drawing Note editing preview
+
+### Architecture and ownership — ESTABLISHED
+
+CDP directly reached the live cross-origin production Drawing execution context and identified the transient typed Note presentation. It is **temporary WebGL geometry**, not the offscreen DOM contenteditable delegate and not a dedicated new canvas.
+
+Observed runtime path:
+
+```text
+getXeApplication().m_XeDocuments[0]
+  .m_XeGsDevice.m_Chunks
+```
+
+Qualifying preview geometry appeared as `XeGsSimpleChunk` objects containing `XeGsTextItem` glyph geometry. Tested preview chunks exposed:
+
+```text
+m_TrackerName = "CFxNoteEditorTracker"
+m_Owner       = -2
+m_OwnerBlock  = "0"
+m_Type        = "WS"
+```
+
+The observed native black preview encoded `m_Color = 0xC2000000`, but **black is not an identity criterion**. Controlled explicit-color testing later observed `0xC2FF0000` red preview geometry as well.
+
+Changing only a qualifying preview chunk's `m_Color` and requesting `invalidateServerTrackers()` changed the active typed text without visibly changing ruler, borders, editor controls, dimensions, ordinary geometry, or title block. Restoring the exact original value succeeded. Committing while the transient preview carried a diagnostic color did not persist that diagnostic color into the saved Note; reopening created fresh native preview geometry.
+
+### Lifecycle — ESTABLISHED
+
+Preview chunks are ephemeral. During controlled typing, one chunk was destroyed and replaced by multiple new chunks; cancellation removed all Note-preview chunks. Therefore retained chunk ID or object identity cannot be the lifecycle mechanism.
+
+The chunk collection emits `Update_XeGsGeometryChunks`. A filtered listener on the current collection observed editor-open geometry, replacement geometry during typing, and the empty set after cancellation. This provides an event-driven reacquisition seam without polling. The collection event itself is broader than Notes and must always be combined with Note lifecycle/command guards and strict chunk filtering.
+
+### V2 implementation — `note-preview-main-1`
+
+The accepted V2 prototype integrates `createNotePreview()` with existing Apply/Restore behavior. The implementation uses:
+
+- active Note-editor and command guards;
+- strict `CFxNoteEditorTracker` filtering;
+- `Update_XeGsGeometryChunks` reacquisition;
+- per-object capture of each actual original `m_Color`;
+- restoration and release of replaced objects;
+- `invalidateServerTrackers()` redraw;
+- listener removal on OFF/Restore and realm/page lifecycle cleanup.
+
+It does not poll, override global prototypes, globally intercept Canvas/WebGL, or change palette-index-7 behavior.
+
+`theme.js` SHA-256 changed in the accepted V2 implementation:
+
+```text
+pre-Note accepted baseline: 1BC69A4C4CFD370316454F33F354CD92ED7F29E3864F1126799DF6C2A58A807F
+Note-preview V2:            43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC
+```
+
+### Acceptance — ESTABLISHED for tested cases
+
+The prototype passed controlled tests for Warm Drafting, Slate Graphite, Industrial Cyanotype, continued typing/chunk replacement, cancellation, existing-Note editing, commit isolation, live preset changes with the editor open, OFF restoration, ON reacquisition, and Drawing reload/realm replacement without listener accumulation.
+
+An explicit-color test created native black and red Note runs. Their preview chunks carried distinct originals (`0xC2000000` and `0xC2FF0000`); the prototype captured/restored both independently. Committing and reopening preserved the native saved colors. Public Restore also passed. Final instrumented closeout showed the editor inactive with zero retained preview objects and no residual listener/instrumentation state.
+
+HUMAN subsequently confirmed the feature visually on the primary workstation and again after physical V2 transfer to the work laptop. The dark Slate Graphite/Cyanotype use case is therefore independently accepted across two machines.
+
+### Remaining uncertainty
+
+**UNKNOWN:** exhaustive rich/mixed Note formatting combinations, exhaustive print/PDF/export behavior, and future compatibility of `CFxNoteEditorTracker`, geometry-chunk events, and other private Onshape interfaces. Commit isolation establishes strong presentation-only evidence for the tested cases, but unexercised output paths remain explicitly unknown.
+
+### Work-laptop promotion reconciliation
+
+On 2026-09-17, local and USB V2 non-backup file sets were verified byte-identical, and both accepted V2 `theme.js` files matched `43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC`. Review of the actual source confirmed the documented `createNotePreview()` architecture: active Note command/editor gates, strict `CFxNoteEditorTracker` plus `XeGsSimpleChunk`/`XeGsTextItem` qualification, `Update_XeGsGeometryChunks` reacquisition, per-object native `m_Color` capture, replacement cleanup, `invalidateServerTrackers()`, OFF/ON/preset/Restore integration, and page-lifecycle cleanup without polling or prototype replacement.
+
+Only `theme.js` was promoted to the work-laptop production LIVE directory. The production manifest remained byte-identical at SHA-256 `884FAC5A719CFC62E0CB56A03BA92D12B3E31B368ED2AC8300B527DF2E266ECE`; the experimental V2 identity was not promoted. The resulting LIVE `theme.js` matches the accepted candidate hash above.
+
+A recreated Drawing realm booted `note-preview-main-1`, applied Warm Drafting with exact accepted renderer values, and displayed readable foreground-colored Note preview text while typing continued through geometry replacement. Cancel closed the temporary Note editor, removed the uncommitted test text, and produced no Note-preview runtime error. Chrome automation could not operate the internal Extensions page, so the consolidation smoke pass did not independently repeat every popup-driven OFF/ON/preset scenario. The earlier accepted two-machine matrix remains the authority for those scenarios. The work laptop had no current authoritative repository; its only repository was the preserved historical USB baseline at `29cd918ecbbc3f672def78a64dbe19c931aac143`. Final primary-workstation consolidation subsequently established primary/transfer parity, promoted the accepted V2 implementation into authoritative Git, and completed local static and hash validation.
 
 ## Known nonblockers
 
@@ -548,8 +644,8 @@ Permissions policy violation: unload is not allowed in this document.
 
 **ESTABLISHED by the accepted source:** `chrome.storage.local.enabled` is Boolean, repairs missing/corrupt values to ON, and does not erase `selectedPreset` while OFF. The popup writes storage only and disables palette selection while paused. `bridge.js` validates and relays the settings pair and sets `data-oce-enabled="true|false"`; all 62 CSS rule groups are gated by `:root[data-oce-enabled="true"]`. `theme.js` calls the existing internal renderer `restore()` when a previously enabled realm transitions OFF, leaves a freshly resolved paused realm native, and reapplies the saved preset on ON. This internal toggle path is distinct from the permanently stopping public `restore()`. Settings received before the one-second fallback prevent a default Warm application in a saved OFF realm; storage delay beyond that fallback remains a possible brief default theme interval. The six-file implementation was committed as `3cdff15fafecd11cefd5e6ca2e6a8e2479638b03`. Full toggle-specific renderer log/readback evidence was not captured in this closeout; HUMAN's visual and lifecycle acceptance covers the exercised live behavior.
 
-Title-block and related persistent white/highlight surfaces are optional research. If a bounded source/runtime probe cannot establish an actionable owner, record that result and close the current product without treating it as a failed renderer implementation. An Onshape update may change undocumented internals and selectors; published documentation should state that limitation plainly.
+Title-block/persistent-field research is now closed under the current isolation standard: narrow color owners were proven, but Stage A could not establish a semantic title-field discriminator and Stage B was not opened. Do not reopen that work with permissive style/region/entity heuristics. Active Note-preview theming is a separate accepted V2 implementation with its own strict tracker/lifecycle seam. An Onshape update may change undocumented internals and selectors; published documentation should state that limitation plainly.
 
-Do not restart broad searches for independent dimension color, canvas highlight control, title-block rendering, persistent white canvas fields, or alternative renderer strategies merely because Drawing-chrome work is active.
+Do not restart broad searches for independent dimension color, generic canvas highlight control, title-block Stage A/B, persistent white title-field rendering, or alternative renderer strategies without contradictory current-runtime evidence or a newly authorized bounded requirement.
 
 The accepted work-laptop Drawing UI implementation keeps DOM styling in `drawing-ui.css`, validated preset state and the DOM marker in isolated-world `bridge.js`, and renderer ownership in MAIN-world `theme.js`. Do not treat Drawing-chrome findings as renderer evidence, move DOM styling into `theme.js`, recursively expand the complete DOM, or use generated IDs in production selectors. Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.
