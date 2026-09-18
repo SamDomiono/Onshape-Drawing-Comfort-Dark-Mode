@@ -1,7 +1,7 @@
 ONSHAPE DRAWING COMFORT EXTENSION
 =================================
 
-Version: 0.1.1
+Version: 0.2.0
 Platform: Google Chrome / Chromium-based desktop browser environment
 Tested browser baseline: Chrome 111 or newer
 Status: Independent community/personal project
