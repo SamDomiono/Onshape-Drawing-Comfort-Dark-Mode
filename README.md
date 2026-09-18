@@ -1,9 +1,17 @@
 # ONSHAPE DRAWING COMFORT EXTENSION
 
-Version: 0.2.0
-Platform: Google Chrome / Chromium-based desktop browser environment
-Tested browser baseline: Chrome 111 or newer
-Status: Independent community/personal project
+- **Version:** 0.2.0
+- **Platform:** Google Chrome / Chromium-based desktop browser environment
+- **Tested browser baseline:** Chrome 111 or newer
+- **Status:** Independent community/personal project
+
+## Download
+
+**[Download Onshape Drawing Comfort v0.2.0 (.zip)](https://github.com/SamDomiono/Onshape-Drawing-Comfort-Dark-Mode/releases/download/v0.2.0/Onshape-Drawing-Comfort-Dark-Mode-v0.2.0.zip)**
+
+No Git or programming tools are required. Extract the ZIP to a permanent folder, then install it through Chrome using **Developer mode → Load unpacked**.
+
+For detailed installation instructions, see [Installation](#installation) below.
 
 ## Preview
 
