@@ -138,17 +138,23 @@ Responsibilities include:
 - honor persistent preset and enabled state
 - own active Drawing Note preview recoloring/lifecycle
 
-The accepted V2 MAIN revision is:
+The accepted MAIN revision is:
 
 ```text
-note-preview-main-1
+renderer-rebind-main-1
 ```
 
-At final V2 acceptance, the expected `theme.js` SHA-256 was:
+The accepted `theme.js` SHA-256 is:
 
 ```text
-43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC
+3F69580E104FF0E437AF746AED146D167A9D80D65A87A3ACAA17E2311FBF1AF7
 ```
+
+This revision adds post-startup renderer-generation detection and guarded
+rebind while preserving one extension-lifetime trusted native baseline for
+later restoration. The prior accepted Note-preview revision was
+`note-preview-main-1` at SHA-256
+`43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC`.
 
 Treat hashes as release evidence, not as a reason to reject an intentional future edit.
 

@@ -1,11 +1,13 @@
 (() => {
   "use strict";
-  const VERSION = "0.1.1";
-  const REVISION = "note-preview-main-1";
+  const VERSION = "0.2.0";
+  const REVISION = "renderer-rebind-main-1";
   const KEY = "__onshapeComfortExtension01";
   const CHANNEL = "onshape-comfort-extension";
   const PROTOCOL = 1;
   const SETTINGS_WAIT_MS = 1000;
+  const RENDERER_POLL_MS = 500;
+  const RENDERER_REBIND_LIMIT_MS = 60000;
   const PRESETS = Object.freeze({
     warm_drafting: Object.freeze({
       label: "Warm Drafting",
@@ -95,19 +97,23 @@
   let lastAttemptedEnabled = null;
   let settingsStatus = "waiting";
   let settingsTimer = null;
+  let rendererWatchdog = null;
+  let rebindStarted = null;
+  let rebindWaitingLogged = false;
+  let trustedNativeBaseline = null;
   const started = performance.now();
 
-  function applyDesiredPreset(reason) {
+  function applyDesiredPreset(reason, force = false) {
     if (stopped || !controller || desiredPreset === null ||
         desiredEnabled === null ||
-        (lastAttemptedPreset === desiredPreset &&
+        (!force && lastAttemptedPreset === desiredPreset &&
          lastAttemptedEnabled === desiredEnabled)) return;
     const wasEnabled = lastAttemptedEnabled;
     lastAttemptedPreset = desiredPreset;
     lastAttemptedEnabled = desiredEnabled;
     if (!desiredEnabled) {
       // In a newly resolved realm the native snapshot has not been themed.
-      const restored = wasEnabled === true ? controller.restore() : true;
+      const restored = force || wasEnabled === true ? controller.restore() : true;
       log("SETTINGS OFF", { reason, desiredPreset, restored });
       return;
     }
@@ -319,7 +325,19 @@
       surround: paper.m_PaperBackColor
     });
 
-    const original = snapshot();
+    const capturedOriginal = snapshot();
+    if (trustedNativeBaseline === null) {
+      trustedNativeBaseline = Object.freeze({
+        ink: capturedOriginal.ink,
+        paper: Object.freeze(capturedOriginal.paper.slice()),
+        surround: capturedOriginal.surround
+      });
+    }
+    const original = {
+      ink: trustedNativeBaseline.ink,
+      paper: trustedNativeBaseline.paper.slice(),
+      surround: trustedNativeBaseline.surround
+    };
     let activePreset = null;
     let activeTheme = null;
 
@@ -490,6 +508,8 @@
       apply,
       applyPreset,
       listPresets,
+      isValid: identity,
+      retire: () => notePreview.setTheme(null),
       restore: () => {
         notePreview.setTheme(null);
         return change("RESTORE", original, null);
@@ -543,6 +563,7 @@
         stopped = true;
         clearTimeout(timer);
         clearTimeout(settingsTimer);
+        clearInterval(rendererWatchdog);
         lastAttemptedPreset = null;
         lastAttemptedEnabled = null;
         if (controller) {
@@ -591,6 +612,51 @@
     applyDesiredPreset("settings-timeout");
   }, SETTINGS_WAIT_MS);
 
+  function watchRenderer() {
+    if (stopped) return;
+
+    if (controller) {
+      let valid = false;
+      try { valid = controller.isValid(); }
+      catch (_) { valid = false; }
+      if (valid) return;
+
+      log("RENDERER CHANGE DETECTED");
+      try { controller.retire(); }
+      catch (error) {
+        log("RENDERER RETIRE WARNING", { reason: error.message });
+      }
+      controller = null;
+      status = "rebinding";
+      rebindStarted = performance.now();
+      rebindWaitingLogged = false;
+    }
+
+    try {
+      controller = resolve();
+    } catch (error) {
+      if (!rebindWaitingLogged) {
+        rebindWaitingLogged = true;
+        log("RENDERER REBIND WAITING", { reason: error.message });
+      }
+      if (performance.now() - rebindStarted >= RENDERER_REBIND_LIMIT_MS) {
+        status = "rebind-timeout";
+        clearInterval(rendererWatchdog);
+        rendererWatchdog = null;
+        log("RENDERER REBIND ABORTED", {
+          reason: error.message,
+          retryLimitMs: RENDERER_REBIND_LIMIT_MS
+        });
+      }
+      return;
+    }
+
+    rebindStarted = null;
+    rebindWaitingLogged = false;
+    log("RENDERER REBOUND", { desiredPreset, desiredEnabled });
+    applyDesiredPreset("renderer-rebound", true);
+  }
+
   function attempt() {
     if (stopped) {
       return;
@@ -612,6 +678,7 @@
 
     log("RENDERER READY", { settingsStatus, desiredPreset, desiredEnabled });
     applyDesiredPreset("renderer-ready"); // No retries after a mutation attempt.
+    rendererWatchdog = setInterval(watchRenderer, RENDERER_POLL_MS);
   }
 
   attempt();

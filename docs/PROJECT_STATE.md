@@ -1,11 +1,11 @@
 # Onshape Drawing Comfort Extension — Project State
 
-**Updated:** 2026-09-17 — accepted V2 promoted to the primary deployed directory and authoritative Git source
+**Updated:** 2026-09-18 — accepted renderer-rebind correction consolidated from work-laptop live acceptance
 **Product authority:** HUMAN
 **Manifest version:** 0.2.0
-**Authoritative MAIN-world revision:** `note-preview-main-1`
+**Authoritative MAIN-world revision:** `renderer-rebind-main-1`
 **September 16 baseline MAIN revision:** `persistent-toggle-main-1`
-**Work-laptop corroborating MAIN revision:** `note-preview-main-1`
+**Work-laptop accepted MAIN revision:** `renderer-rebind-main-1`
 **Isolated-world revision:** `drawing-ui-toggle-bridge-1`
 **Drawing CSS revision:** `drawing-ui-toggle-css-1`
 **Popup revision:** `preset-popup-toggle-1`
@@ -796,6 +796,37 @@ ONSHAPE-COMFORT-EXTENSION-PRIMARY-TRANSFER-20260917\docs\RENDERER_FINDINGS.md
 ```
 
 That historical transfer set intentionally excluded the V2 manifest and unchanged implementation files. Final primary-workstation consolidation instead compared all 13 authoritative implementation files, established byte parity between primary V2 and the work-laptop V2 transfer, promoted the complete accepted V2 set into Git, and verified primary/Git byte parity before commit.
+
+## Accepted renderer-generation rebind correction — `renderer-rebind-main-1`
+
+After the public V2 release, HUMAN reproduced a lifecycle defect specific to replacement of an already-running Drawing renderer. New Drawings, new sheets, and switching existing sheets continued to work. Changing an existing sheet's type, size, or format caused Onshape to replace renderer-generation objects: the Drawing foreground and surrounding UI remained themed, but the newly created `PaperOptimized` sheet fill returned to native white. The active Note-preview identity guard independently logged `NOTE PREVIEW DISABLED` with reason `Note preview renderer identity changed`, establishing that the retained generation was stale. The main controller previously had startup resolution but no post-startup rebind path.
+
+The accepted correction is the exact work-laptop deployed `theme.js`, SHA-256:
+
+```text
+3F69580E104FF0E437AF746AED146D167A9D80D65A87A3ACAA17E2311FBF1AF7
+```
+
+Its predecessor was `note-preview-main-1`, SHA-256 `43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC`. The correction adds one 500 ms lifecycle watchdog that reuses the exact existing renderer identity guard. A valid controller causes no mutation or health-log traffic. A stale controller is retired, including its Note-preview listener state; guarded `resolve()` calls then retry for up to 60 seconds without weakening paper, scene, material, palette, or redraw readiness checks. A successful fresh resolve creates a new controller and Note-preview instance, then deliberately forces the unchanged desired enabled/preset state onto that renderer generation while leaving ordinary settings deduplication intact.
+
+The initial trusted native color state now lives outside renderer-generation controllers. Replacement controllers receive a copy of that baseline instead of defining `original` from a potentially mixed state containing Comfort foreground/surround colors and a native-white replacement sheet. Existing verified APPLY/RESTORE mutation, readback, rollback, and redraw behavior remains unchanged.
+
+HUMAN live acceptance exercised repeated Change Sheet Properties operations, multiple sheet formats, sheets, and tabs, automatic rebound, disable, re-enable, and saved-preset restoration. Representative successful sequences were:
+
+```text
+NOTE PREVIEW DISABLED
+RENDERER CHANGE DETECTED
+RENDERER REBOUND
+APPLY OK
+APPLY REDRAW REQUESTED
+SETTINGS APPLY { reason: "renderer-rebound" }
+```
+
+The supplied acceptance transcript contains repeated successful resolutions with `PaperOptimized`, `xegltype: 4`, two paper objects, and one line object. It contains no Comfort `APPLY FAILED`, `RESTORE FAILED`, `ROLLBACK`, rebind-timeout, or redraw-failure message.
+
+The highest-risk restoration case passed after repeated renderer replacements. Every rebound continued to report the original baseline as `ink: 0`, `paper: [1,1,1]`, and `surround: 14474460`. Turning the extension OFF produced `RESTORE OK` with those exact current values, followed by `RESTORE REDRAW REQUESTED` and `SETTINGS OFF` with `restored: true`. Turning it ON reapplied Industrial Cyanotype successfully. Renderer replacement is therefore handled as an expected Drawing lifecycle event rather than an unrecoverable stale-controller condition.
+
+The isolated-world `bridge.js` behavior and revision remain `drawing-ui-toggle-bridge-1`. Its stale diagnostic `VERSION` constant was normalized from `0.1.1` to the product version `0.2.0`; no bridge behavior changed. The raw console transcript was used as evidence and is not part of the repository.
 
 ## Product backlog and boundaries
 

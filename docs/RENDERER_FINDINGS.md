@@ -1,9 +1,9 @@
 # Onshape Drawing Comfort Extension — Renderer Findings
 
-**Updated:** 2026-09-17 — accepted active-Note preview V2 promoted to primary deployment and authoritative Git
-**Current authoritative MAIN revision:** `note-preview-main-1`
+**Updated:** 2026-09-18 — accepted renderer-generation rebind correction consolidated from live acceptance
+**Current authoritative MAIN revision:** `renderer-rebind-main-1`
 **September 16 baseline MAIN revision:** `persistent-toggle-main-1`
-**Work-laptop corroborating MAIN revision:** `note-preview-main-1`
+**Work-laptop accepted MAIN revision:** `renderer-rebind-main-1`
 **Current accepted bridge revision:** `drawing-ui-toggle-bridge-1`
 **Current accepted Drawing CSS revision:** `drawing-ui-toggle-css-1`
 **Current accepted popup revision:** `preset-popup-toggle-1`
@@ -625,6 +625,44 @@ On 2026-09-17, local and USB V2 non-backup file sets were verified byte-identica
 Only `theme.js` was promoted to the work-laptop production LIVE directory. The production manifest remained byte-identical at SHA-256 `884FAC5A719CFC62E0CB56A03BA92D12B3E31B368ED2AC8300B527DF2E266ECE`; the experimental V2 identity was not promoted. The resulting LIVE `theme.js` matches the accepted candidate hash above.
 
 A recreated Drawing realm booted `note-preview-main-1`, applied Warm Drafting with exact accepted renderer values, and displayed readable foreground-colored Note preview text while typing continued through geometry replacement. Cancel closed the temporary Note editor, removed the uncommitted test text, and produced no Note-preview runtime error. Chrome automation could not operate the internal Extensions page, so the consolidation smoke pass did not independently repeat every popup-driven OFF/ON/preset scenario. The earlier accepted two-machine matrix remains the authority for those scenarios. The work laptop had no current authoritative repository; its only repository was the preserved historical USB baseline at `29cd918ecbbc3f672def78a64dbe19c931aac143`. Final primary-workstation consolidation subsequently established primary/transfer parity, promoted the accepted V2 implementation into authoritative Git, and completed local static and hash validation.
+
+## Renderer-generation replacement and rebind
+
+### Defect evidence
+
+**ESTABLISHED by HUMAN and the supplied console transcript:** New Drawings, new sheets, and switching existing sheets retained the accepted theme. Changing an existing sheet type or format caused Onshape to replace part of the Drawing renderer object graph. The replacement `PaperOptimized` fill appeared native white while the foreground, surround, extension enabled state, and selected preset remained themed. The Note-preview subsystem then failed closed with `Note preview renderer identity changed`, proving that the retained controller references no longer described the current renderer generation. The main controller had no equivalent post-startup recovery lifecycle.
+
+### Accepted lifecycle — `renderer-rebind-main-1`
+
+The accepted correction preserves the existing structural resolver and exact identity check. A single 500 ms watchdog performs only identity reads while the controller remains valid and emits no repetitive healthy-state log. When identity becomes stale, it logs `RENDERER CHANGE DETECTED`, retires the stale controller and Note-preview listener state, and retries the existing guarded resolver for up to 60 seconds. A not-yet-ready paper, scene, material, palette, or invalidation path remains a failed resolve; none of those readiness guards was relaxed.
+
+When resolution succeeds, `resolve()` creates a fresh controller and therefore a fresh Note-preview instance. The lifecycle logs `RENDERER REBOUND` and forces the currently desired preset/enable state through the existing application machinery for that generation. This one generation-specific force bypasses settings deduplication without weakening normal duplicate suppression. Main color changes still use the existing identity check, before-write snapshot, exact readback, per-control rollback, active-state bookkeeping, and redraw semantics.
+
+The trusted native baseline is extension-lifetime state, separate from the current controller's renderer references. It is captured before initial theming and copied into replacement controllers. A replacement controller therefore cannot redefine native state from a mixed renderer containing Comfort foreground/surround values and a newly native-white paper fill.
+
+Accepted `theme.js` transition:
+
+```text
+pre-rebind note-preview-main-1:
+43FDAAFB66C9B110312B4DA6FA7F1E519484536E19DEF21600EAF0961AFCD5FC
+
+accepted renderer-rebind-main-1:
+3F69580E104FF0E437AF746AED146D167A9D80D65A87A3ACAA17E2311FBF1AF7
+```
+
+### Live acceptance
+
+Repeated sheet-format changes across multiple sheets and tabs produced repeated successful sequences of `NOTE PREVIEW DISABLED`, `RENDERER CHANGE DETECTED`, `RENDERER REBOUND`, `APPLY OK`, `APPLY REDRAW REQUESTED`, and `SETTINGS APPLY` with reason `renderer-rebound`. Each captured successful resolve reported `PaperOptimized`, `xegltype: 4`, two paper objects, and one line object. The supplied evidence contains no Comfort apply failure, restore failure, rollback, rebind timeout, or redraw failure.
+
+After repeated replacements, the trusted original remained:
+
+```text
+ink:      0
+paper:    [1,1,1]
+surround: 14474460
+```
+
+Turning Comfort OFF produced `RESTORE OK` with those exact current values, followed by a redraw request and `SETTINGS OFF` with `restored: true`. Turning it ON reapplied Industrial Cyanotype with sheet `#0E2238`, foreground `#8AA9C7`, and surround `#3A4148`. Native-baseline preservation across renderer generations is therefore accepted for the exercised live cases. Renderer replacement is now treated as an expected Drawing lifecycle event rather than a terminal stale-controller condition.
 
 ## Known nonblockers
 

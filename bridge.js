@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const VERSION = "0.1.1";
+  const VERSION = "0.2.0";
   const REVISION = "drawing-ui-toggle-bridge-1";
   const KEY = "__onshapeComfortBridge01";
   const CHANNEL = "onshape-comfort-extension";
