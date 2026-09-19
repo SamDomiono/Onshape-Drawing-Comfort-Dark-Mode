@@ -1,7 +1,7 @@
 /*
  * Onshape Drawing Comfort Extension
  * Drawing chrome layer
- * Revision: specialized-dialog-css-1
+ * Revision: gdt-weld-dialog-css-1
  *
  * Owns legacy Drawing-editor DOM/CSS only.
  * Does NOT own WebGL renderer colors.
@@ -299,21 +299,37 @@ textarea.XeInput, input.XeSpinBox.Wt-spinbox,
 
 
 /* Table/BOM/Cut List fixed-corner artwork is dark inside the
-   external SVGs. Filter only inactive icons on themed buttons;
-   active buttons retain their native contrast and state cue. */
+   external SVGs. Keep every icon legible, including the selected
+   corner after its native light active surface is replaced. */
 
 :root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
-[data-object-name="drawing-table-anchor-top-left"]:not(.active) > img,
+[data-object-name="drawing-table-anchor-top-left"] > img,
 
 :root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
-[data-object-name="drawing-table-anchor-top-right"]:not(.active) > img,
+[data-object-name="drawing-table-anchor-top-right"] > img,
 
 :root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
-[data-object-name="drawing-table-anchor-bottom-left"]:not(.active) > img,
+[data-object-name="drawing-table-anchor-bottom-left"] > img,
 
 :root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
-[data-object-name="drawing-table-anchor-bottom-right"]:not(.active) > img {
+[data-object-name="drawing-table-anchor-bottom-right"] > img {
   filter: var(--oce-ui-icon-filter) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="drawing-table-anchor-top-left"].active,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="drawing-table-anchor-top-right"].active,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="drawing-table-anchor-bottom-left"].active,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="drawing-table-anchor-bottom-right"].active {
+  background-color: var(--oce-ui-selected) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-active-border) !important;
 }
 
 
@@ -385,6 +401,34 @@ textarea.XeInput, input.XeSpinBox.Wt-spinbox,
 :root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
 .toolbar-popup-button.selected > .dropdown-toggle .caret {
   border-top-color: var(--oce-ui-text) !important;
+}
+
+
+/* The GDT selector/action glyphs are dark external SVG images. Their
+   already-themed compound controls and dropdown affordances remain native. */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="cbSymbol0"] > img,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="cbLeaderTolerance"] > img,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="btnShowHideSymbols"] > img {
+  filter: var(--oce-ui-icon-filter) !important;
+}
+
+
+/* Weld preview artwork is supplied through monochrome background images.
+   Filter only the three direct preview pieces; the symbol parent carries
+   its nested above/below-symbol layers so they are not filtered twice. */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="rowPreview"] > .xenon-onshape-weld-ImgSymbol,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="rowPreview"] > .xenon-onshape-weld-ImgTail {
+  filter: var(--oce-ui-icon-filter) !important;
 }
 
 
