@@ -1,7 +1,7 @@
 /*
  * Onshape Drawing Comfort Extension
  * Drawing chrome layer
- * Revision: drawing-ui-toggle-css-1
+ * Revision: shared-dialog-css-1
  *
  * Owns legacy Drawing-editor DOM/CSS only.
  * Does NOT own WebGL renderer colors.
@@ -204,6 +204,144 @@ label.checkbox > input + span {
 :root[data-oce-enabled="true"] .xenon-flyout-widget-container.xenon-flyout-right
 label.checkbox > input:disabled + span {
   color: var(--oce-ui-muted) !important;
+}
+
+
+/* ==========================================================
+   SHARED DIALOG FOUNDATION
+
+   Common Xenon dialog chrome and ordinary form controls only.
+   Specialized dialog families and stateful controls are deferred.
+   ========================================================== */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog) {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+> .dialog-layout,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XeDialogBody,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.dialogBody {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XeDialogHeader {
+  background-color: var(--oce-ui-section) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XeDialogHeaderTitle,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XeContentRow,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XeDialogContentRowItem,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.DialogContentRowItem,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XeLabel {
+  color: var(--oce-ui-text) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+select.XeDropdown,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+input.XeDropdown,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+input.XeInput,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+textarea.XeInput,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+input.XeSpinBox.Wt-spinbox {
+  background-color: var(--oce-ui-field) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XePushButton:not(.active):not(.selected) {
+  background-color: var(--oce-ui-field) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+:is(select.XeDropdown, input.XeDropdown, input.XeInput,
+textarea.XeInput, input.XeSpinBox.Wt-spinbox,
+.XePushButton:not(.active):not(.selected)):disabled,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+:is(select.XeDropdown, input.XeDropdown, input.XeInput,
+textarea.XeInput, input.XeSpinBox.Wt-spinbox,
+.XePushButton:not(.active):not(.selected)).disabled {
+  background-color: var(--oce-ui-disabled-field) !important;
+  color: var(--oce-ui-muted) !important;
+  border-color: var(--oce-ui-disabled-border) !important;
+}
+
+
+/* Table/BOM/Cut List fixed-corner artwork is dark inside the
+   external SVGs. Filter only inactive icons on themed buttons;
+   active buttons retain their native contrast and state cue. */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="drawing-table-anchor-top-left"]:not(.active) > img,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="drawing-table-anchor-top-right"]:not(.active) > img,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="drawing-table-anchor-bottom-left"]:not(.active) > img,
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+[data-object-name="drawing-table-anchor-bottom-right"]:not(.active) > img {
+  filter: var(--oce-ui-icon-filter) !important;
+}
+
+
+/* Preserve the native red-X background image while removing the
+   white surface supplied by the cancel control itself. */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XeDialogHeaderCancel {
+  background-color: transparent !important;
+}
+
+
+/* The compound edit/dropdown children are already themed; the
+   wrapper independently owns the remaining white region. */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.XeEditComboBox.XeDialogContentRowItem {
+  background-color: var(--oce-ui-field) !important;
+}
+
+
+/* Datum's semantic option tabs form the remaining light strip below
+   the already-themed header. Native active underline/state remains. */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.OsTextOption.XeDialogContentRowItem {
+  background-color: var(--oce-ui-field) !important;
+  color: var(--oce-ui-text) !important;
 }
 
 
