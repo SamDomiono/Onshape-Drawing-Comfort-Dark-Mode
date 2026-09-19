@@ -1,7 +1,7 @@
 /*
  * Onshape Drawing Comfort Extension
  * Drawing chrome layer
- * Revision: gdt-weld-dialog-css-1
+ * Revision: note-editor-css-1
  *
  * Owns legacy Drawing-editor DOM/CSS only.
  * Does NOT own WebGL renderer colors.
@@ -428,6 +428,182 @@ textarea.XeInput, input.XeSpinBox.Wt-spinbox,
 
 :root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
 [data-object-name="rowPreview"] > .xenon-onshape-weld-ImgTail {
+  filter: var(--oce-ui-icon-filter) !important;
+}
+
+
+/* ==========================================================
+   NOTE EDITOR
+
+   This popup is not a .XeDialog, so it does not inherit the
+   shared dialog foundation. Renderer-owned Note preview remains
+   the responsibility of theme.js.
+   ========================================================== */
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget,
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget > .dialog-layout,
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.XeDialogBody.noteeditor-body {
+  background-color: var(--oce-ui-background) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.XeDialogHeader {
+  background-color: var(--oce-ui-section) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+:is(.XeDialogHeaderTitle, .XeContentRow,
+.XeDialogContentRowItem, .XeLabel) {
+  color: var(--oce-ui-text) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+[data-object-name="DialogCancelButton"] {
+  background-color: transparent !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+:is(select.XeDropdown, input.XeDropdown) {
+  background-color: var(--oce-ui-field) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+:is(select.XeDropdown, input.XeDropdown):disabled,
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+:is(select.XeDropdown, input.XeDropdown).disabled {
+  background-color: var(--oce-ui-disabled-field) !important;
+  color: var(--oce-ui-muted) !important;
+  border-color: var(--oce-ui-disabled-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.XeCheckBoxWithText.disabled .XeLabel {
+  color: var(--oce-ui-muted) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.toolbar-button {
+  background-color: var(--oce-ui-field) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.toolbar-button.active {
+  background-color: var(--oce-ui-selected) !important;
+  border-color: var(--oce-ui-active-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.toolbar-button:not(.disabled):not(.active):hover {
+  background-color: var(--oce-ui-image-tile) !important;
+  border-color: var(--oce-ui-active-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.toolbar-button.disabled {
+  background-color: var(--oce-ui-disabled-field) !important;
+  color: var(--oce-ui-muted) !important;
+  border-color: var(--oce-ui-disabled-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.toolbar-button.with-icon > img {
+  filter: var(--oce-ui-icon-filter) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.toolbar-button.dropdown-toggle > .caret {
+  border-top-color: var(--oce-ui-text) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+.toolbar-button.dropdown-toggle.disabled > .caret {
+  border-top-color: var(--oce-ui-muted) !important;
+}
+
+/* The inline fill of the text-color swatch is functional and deliberately
+   remains untouched; only its surrounding border joins the field language. */
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+[data-object-name="ColorInput"].NoteColorBtn {
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"]
+[data-object-name="NoteToolbar"].xenon-NoteWidget
+[data-object-name="ColorInput"].NoteColorBtn:hover {
+  border-color: var(--oce-ui-active-border) !important;
+}
+
+
+/* Note-owned menus are reparented outside NoteToolbar. Their semantic
+   class remains the ownership boundary after detachment. */
+
+:root[data-oce-enabled="true"] .noteeditor-popup-menu {
+  background-color: var(--oce-ui-field) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"] .noteeditor-popup-menu > li > a {
+  background-color: transparent !important;
+  color: var(--oce-ui-text) !important;
+}
+
+:root[data-oce-enabled="true"] .noteeditor-popup-menu
+> li:not(.disabled) > a:hover,
+
+:root[data-oce-enabled="true"] .noteeditor-popup-menu
+> li:not(.disabled) > a:focus,
+
+:root[data-oce-enabled="true"] .noteeditor-popup-menu
+> li.active > a {
+  background-color: var(--oce-ui-selected) !important;
+  color: var(--oce-ui-text) !important;
+}
+
+:root[data-oce-enabled="true"] .noteeditor-popup-menu
+> li.disabled > a {
+  color: var(--oce-ui-muted) !important;
+}
+
+:root[data-oce-enabled="true"] .noteeditor-popup-menu
+> li.divider {
+  background-color: var(--oce-ui-border) !important;
+  border-top-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"] .noteeditor-popup-menu
+.Wt-icon[style*="checkmark.svg"] {
   filter: var(--oce-ui-icon-filter) !important;
 }
 
