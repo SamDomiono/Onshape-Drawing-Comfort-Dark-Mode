@@ -1,11 +1,11 @@
 # Onshape Drawing Comfort Extension — Renderer Findings
 
-**Updated:** 2026-09-18 — accepted renderer-generation rebind correction consolidated from live acceptance
+**Updated:** 2026-09-19 — final accepted renderer/dialog/Note-editor architecture closeout
 **Current authoritative MAIN revision:** `renderer-rebind-main-1`
 **September 16 baseline MAIN revision:** `persistent-toggle-main-1`
 **Work-laptop accepted MAIN revision:** `renderer-rebind-main-1`
 **Current accepted bridge revision:** `drawing-ui-toggle-bridge-1`
-**Current accepted Drawing CSS revision:** `drawing-ui-toggle-css-1`
+**Current accepted Drawing CSS revision:** `note-editor-css-1`
 **Current accepted popup revision:** `preset-popup-toggle-1`
 
 ## Evidence language
@@ -13,6 +13,45 @@
 - **ESTABLISHED:** Directly supported by current source, captured source paths, exact runtime readback, or HUMAN's visual observation.
 - **INFERRED:** A conclusion one step beyond direct evidence, with its basis stated.
 - **UNKNOWN:** Required evidence is missing, historical, contradictory, or not captured.
+
+## Current accepted architecture boundary — 2026-09-19
+
+The accepted implementation baseline before the documentation-only closeout is local `main` at `64f274d905f24ca5359729490680ea3e710906cf` (`Theme Drawing Note editor`). `origin/main` is the accepted renderer-rebind commit `8bda24491f6b3a46a6b4dbc489908eb00027e19c`; the four later local implementation commits are intentionally unpushed at this checkpoint.
+
+Ownership is explicit:
+
+```text
+theme.js
+→ renderer-owned sheet, unified foreground, and surround
+→ renderer-generation identity/rebind lifecycle
+→ renderer-owned active Note preview geometry
+
+drawing-ui.css
+→ Drawing DOM/CSS chrome and right-side flyouts
+→ shared and specialized dialog presentation
+→ GDT glyph, table-anchor, and Weld artwork contrast
+→ DOM-owned Note editor shell, controls, and detached menus
+
+bridge.js
+→ validated storage/settings relay
+→ enabled/preset markers consumed by drawing-ui.css
+```
+
+The accepted dialog sequence is `2df3e3e` (shared dialogs), `e4fbe88` (specialized non-GDT/non-Weld controls), `37e2625` (GDT/Weld artwork and table-anchor state), and `64f274d` (Note editor DOM). These are DOM/CSS presentation milestones, not renderer changes. `theme.js` remains byte-identical to the accepted `renderer-rebind-main-1` implementation at SHA-256 `3F69580E104FF0E437AF746AED146D167A9D80D65A87A3ACAA17E2311FBF1AF7`.
+
+The Note distinction is deliberate:
+
+```text
+active Note preview while typing
+→ transient renderer-owned WebGL geometry
+→ theme.js / createNotePreview()
+
+Note editor window and controls
+→ ordinary DOM/CSS presentation
+→ drawing-ui.css / note-editor-css-1
+```
+
+HUMAN accepted both paths together. The DOM editor treatment does not replace, duplicate, or broaden the renderer preview subsystem.
 
 ## Accepted renderer architecture
 
@@ -686,4 +725,4 @@ Title-block/persistent-field research is now closed under the current isolation 
 
 Do not restart broad searches for independent dimension color, generic canvas highlight control, title-block Stage A/B, persistent white title-field rendering, or alternative renderer strategies without contradictory current-runtime evidence or a newly authorized bounded requirement.
 
-The accepted work-laptop Drawing UI implementation keeps DOM styling in `drawing-ui.css`, validated preset state and the DOM marker in isolated-world `bridge.js`, and renderer ownership in MAIN-world `theme.js`. Do not treat Drawing-chrome findings as renderer evidence, move DOM styling into `theme.js`, recursively expand the complete DOM, or use generated IDs in production selectors. Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.
+The accepted current Drawing implementation keeps DOM styling in `drawing-ui.css`, validated settings and DOM markers in isolated-world `bridge.js`, and renderer ownership in MAIN-world `theme.js`. Dialog, GDT/Weld presentation, and Note-editor chrome are therefore not renderer findings even though their history is retained here to document the boundary. Do not move DOM styling into `theme.js`, recursively expand the complete DOM, or use generated IDs in production selectors. Reopen renderer investigation only when a specific newly authorized product requirement or contradictory current-runtime observation supplies a bounded question.

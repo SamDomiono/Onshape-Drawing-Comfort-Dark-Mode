@@ -1,13 +1,13 @@
 # Onshape Drawing Comfort Extension — Project State
 
-**Updated:** 2026-09-18 — accepted renderer-rebind correction consolidated from work-laptop live acceptance
+**Updated:** 2026-09-19 — final accepted Drawing dialog and Note-editor implementation closeout
 **Product authority:** HUMAN
 **Manifest version:** 0.2.0
 **Authoritative MAIN-world revision:** `renderer-rebind-main-1`
 **September 16 baseline MAIN revision:** `persistent-toggle-main-1`
 **Work-laptop accepted MAIN revision:** `renderer-rebind-main-1`
 **Isolated-world revision:** `drawing-ui-toggle-bridge-1`
-**Drawing CSS revision:** `drawing-ui-toggle-css-1`
+**Drawing CSS revision:** `note-editor-css-1`
 **Popup revision:** `preset-popup-toggle-1`
 
 ## Product objective
@@ -49,6 +49,84 @@ back up current files
 ```
 
 Do not copy the Git mirror over a live candidate before acceptance; that previously replaced a new candidate with the older validated revision.
+
+## Current accepted release state — 2026-09-19
+
+The authoritative implementation baseline before this documentation-only closeout is:
+
+```text
+repository:      C:\AI_WORK\ONSHAPE-COMFORT-EXTENSION
+live deployment:C:\Users\swehr\Documents\ONSHAPE-COMFORT-EXTENSION-V2
+branch:          main
+implementation HEAD: 64f274d905f24ca5359729490680ea3e710906cf
+HEAD message:    Theme Drawing Note editor
+origin/main:     8bda24491f6b3a46a6b4dbc489908eb00027e19c
+relationship:   local main ahead 4, behind 0
+worktree:        clean
+runtime parity:  13 / 13 files byte-identical between repository and LIVE
+```
+
+Current component revisions are:
+
+```text
+theme.js:       renderer-rebind-main-1
+bridge.js:      drawing-ui-toggle-bridge-1
+drawing-ui.css: note-editor-css-1
+popup.js:       preset-popup-toggle-1
+```
+
+The accepted local implementation sequence is intentionally preserved:
+
+```text
+8bda244  Fix Drawing renderer rebind after sheet changes
+2df3e3e  Theme shared Drawing dialogs
+e4fbe88  Theme specialized Drawing dialog controls
+37e2625  Polish GDT and Weld dialog artwork
+64f274d  Theme Drawing Note editor
+```
+
+The current ownership boundary is:
+
+```text
+theme.js
+→ WebGL sheet, foreground, and surround ownership
+→ renderer-generation rebind and native-state restoration
+→ renderer-owned active Note preview
+
+drawing-ui.css
+→ ordinary Drawing DOM/CSS chrome and flyouts
+→ shared and specialized dialog presentation
+→ GDT/Weld artwork contrast presentation
+→ DOM-owned Note editor chrome and detached Note menus
+
+bridge.js
+→ validated storage/settings relay
+→ data-oce-enabled and data-oce-preset Drawing-root markers
+```
+
+The accepted dialog milestone covers shared shells, headers, bodies, labels, ordinary fields/buttons and disabled states; QLV/entity-selection, compound/split controls, and component-specific selected states; GDT functional glyph contrast; table-family fixed-corner active states; Weld preview artwork; and the Note editor DOM shell, toolbar, fields, states, swatch boundary, and detached menus. The selected Note color swatch retains its functional inline color. None of this moves renderer ownership out of `theme.js`.
+
+HUMAN accepted renderer rebind, preset persistence, OFF/ON restoration, Drawing chrome, shared dialogs, specialized controls, GDT/Weld presentation, and the Note editor through the staged Checkpoint 1–4B live matrices. The 2026-09-19 closeout smoke pass additionally observed Industrial Cyanotype active in the live Drawing, verified the enabled/preset root markers, opened and cancelled Insert View, GDT, Weld Symbol, BOM Table, and Note editor surfaces, and confirmed the expected computed colors/filters. It did not repeat a sheet-type mutation or popup-driven OFF/ON cycle; the earlier accepted HUMAN runs remain authoritative for those destructive/state-changing cases.
+
+Current runtime SHA-256 values are:
+
+| File | SHA-256 |
+| --- | --- |
+| `manifest.json` | `AB7E5B4825158FB771185E8239B1E6C305AF665FA52E5536F262180F126B4A0C` |
+| `bridge.js` | `A702485616E824807EDFFAFFD0545DC45C1D05CF9E9AF75D7C5BDF745B4EF633` |
+| `theme.js` | `3F69580E104FF0E437AF746AED146D167A9D80D65A87A3ACAA17E2311FBF1AF7` |
+| `drawing-ui.css` | `378D9E1F53C66BB3094D606191F5C4D063954B1B7B0A8D5274F6D6A8E711D2E4` |
+| `popup.html` | `F8FF29DCC7FAA11BF86825CE5C3B1BE4762562FAB99F19C41580FD6DFC2F02D8` |
+| `popup.css` | `69A020C198476ADE5AA606FCB35AEFF0F2E0775EA3BB279986981F78AE4B39B3` |
+| `popup.js` | `FD0CCCBA1BE23D21816D962130330E90313E02A7CC7E604336A6DE35041181AC` |
+| `icons/icon16.png` | `A6B7FBB97A23EB2AE2B4ACC3611105F4DEA9B9D01CA6ECE79304863473C50F2A` |
+| `icons/icon32.png` | `363E083FC33B8A7AB7AE9C4A8A53E834C9F3AE6CB61FEA22D07CA7E330068A30` |
+| `icons/icon48.png` | `BB71828579596077104E8028244D1D6082EBE4379FEEB51BA04807F11A5D3F49` |
+| `icons/icon128.png` | `8B44812AA6C848430C275DF4C0C5BAFE37178F2B178138ECF8595D0405652B3D` |
+| `icons/icon-master.svg` | `BF13AA3C45CE2B6D01970745DA034C86AA03B544E0858148EEC16BE32408F524` |
+| `icons/icon-small.svg` | `D1E1B0395E091D95110DE81A4F9CDFBF3BDD42F0EFD0BC29E39AF2B7D5AA2D4F` |
+
+The manifest is MV3 version `0.2.0` with `minimum_chrome_version` 111. Its `version_name` (`0.2.0-title-block-prototype`) and description (`Experimental Note editor.`) are historical packaging labels; they do not describe the final accepted feature boundary and remain a nonblocking future metadata cleanup item rather than an implementation defect.
 
 ## Historical verified baseline — before Drawing UI and On/Off toggle
 
@@ -107,7 +185,7 @@ The popup/icon documentation reconciliation was subsequently committed at `6d4cb
 
 ## Manifest and execution architecture
 
-The extension remains Manifest V3 version 0.1.1 with minimum Chrome 111. It requests the `storage` permission, declares a toolbar action with `popup.html`, provides 16/32/48/128 px icons, and loads two scripts at `document_idle` in matching Onshape production drawing-editor frames with `all_frames: true`:
+The extension is Manifest V3 version 0.2.0 with minimum Chrome 111. It requests the `storage` permission, declares a toolbar action with `popup.html`, provides 16/32/48/128 px icons, and loads two scripts at `document_idle` in matching Onshape production drawing-editor frames with `all_frames: true`:
 
 ```text
 bridge.js → ISOLATED world
@@ -274,9 +352,9 @@ Popup and icon acceptance established:
 
 The Extension storage tree may temporarily appear empty in DevTools after a page reload. Refreshing the DevTools Application view restores discovery; this did not indicate lost extension storage.
 
-## Drawing editor chrome research
+## Historical Drawing editor chrome research
 
-The next authorized product expansion is the **Drawing editor chrome** surrounding the WebGL canvas, not the already-dark global Onshape document header. Read-only DOM/CSS inspection and temporary reversible Console mutations established that the Drawing editor receives `theme=dark` in its iframe URL but retains a legacy light Wt/Xenon interface.
+The subsequent product expansion was the **Drawing editor chrome** surrounding the WebGL canvas, not the already-dark global Onshape document header. The evidence below records the read-only DOM/CSS inspection and temporary reversible Console mutations that preceded the accepted implementation. The Drawing editor received `theme=dark` in its iframe URL but retained a legacy light Wt/Xenon interface.
 
 No extension source or Git-controlled file was modified during these proofs. Recreating the Drawing editor realm cleared the temporary mutations and the stored Industrial Cyanotype preset reapplied normally.
 
@@ -460,7 +538,7 @@ All accepted preset surrounds are dark and may serve as preset-coherent Drawing-
 
 Neutral UI text `#C8D0D8`, field background `#2F353B`, section background `#50575A`, border `#56616B`, and selected field `#365F78` were visually accepted with Industrial Cyanotype. Ordinary external `<img>` icons accepted `brightness(0) invert(80%)`. Background-image icon controls require a medium-gray tile rather than an image-only filter.
 
-The leading deployment hypothesis remains a narrowly scoped Drawing-frame stylesheet, provisionally `drawing-ui.css`. Every selector must be anchored under `.xenon-flyout-widget-container.xenon-flyout-right` or another proven surface root to avoid affecting similarly named left-side controls. If backgrounds follow the selected preset, a bounded isolated-world addition may mirror the validated preset ID into one extension-owned root attribute. `theme.js` must remain the renderer owner and must not absorb DOM styling responsibilities.
+At this historical research checkpoint, the leading deployment hypothesis was a narrowly scoped Drawing-frame stylesheet, provisionally `drawing-ui.css`. That architecture was subsequently implemented and accepted: selectors remain under the enabled Drawing root and proven surface/component ancestry, the isolated-world bridge mirrors validated enabled/preset state, and `theme.js` remains the renderer owner rather than absorbing DOM styling.
 
 ## Work-laptop Drawing UI implementation — accepted sandbox candidate
 
@@ -833,7 +911,7 @@ The isolated-world `bridge.js` behavior and revision remain `drawing-ui-toggle-b
 Optional polish remains intentionally outside the accepted Drawing UI increment:
 
 - open native dropdown-list rendering;
-- exhaustive hover/focus/active/selected/disabled tuning;
+- exhaustive interaction-state coverage outside the accepted dialog/control families;
 - toolbar selected-state refinement;
 - Sheets selected-row refinement;
 - populated MBD-grid confirmation if a suitable live state becomes available;
