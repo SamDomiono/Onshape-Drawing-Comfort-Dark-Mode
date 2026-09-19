@@ -1,7 +1,7 @@
 /*
  * Onshape Drawing Comfort Extension
  * Drawing chrome layer
- * Revision: shared-dialog-css-1
+ * Revision: specialized-dialog-css-1
  *
  * Owns legacy Drawing-editor DOM/CSS only.
  * Does NOT own WebGL renderer colors.
@@ -210,8 +210,8 @@ label.checkbox > input:disabled + span {
 /* ==========================================================
    SHARED DIALOG FOUNDATION
 
-   Common Xenon dialog chrome and ordinary form controls only.
-   Specialized dialog families and stateful controls are deferred.
+   Common Xenon dialog chrome and ordinary form controls, plus the
+   bounded non-GDT/non-Weld specialized families below.
    ========================================================== */
 
 :root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog) {
@@ -342,6 +342,49 @@ textarea.XeInput, input.XeSpinBox.Wt-spinbox,
 .OsTextOption.XeDialogContentRowItem {
   background-color: var(--oce-ui-field) !important;
   color: var(--oce-ui-text) !important;
+}
+
+
+/* QLV entity-selection rows own their surfaces and caption colors,
+   independently of the shared dialog field rules. */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.OsQlvItem {
+  background-color: var(--oce-ui-field) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-border) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.OsQlvItem .OsQlvCaption {
+  color: var(--oce-ui-text) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.OsQlvItem.active {
+  background-color: var(--oce-ui-selected) !important;
+  border-color: var(--oce-ui-active-border) !important;
+}
+
+
+/* Dialog-local toolbar popup controls are assembled split buttons.
+   Theme the selected parent while keeping its icon and caret legible. */
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.toolbar-popup-button.selected {
+  background-color: var(--oce-ui-selected) !important;
+  color: var(--oce-ui-text) !important;
+  border-color: var(--oce-ui-active-border) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.toolbar-popup-button.selected > .toolbar-button > img {
+  filter: var(--oce-ui-icon-filter) !important;
+}
+
+:root[data-oce-enabled="true"] :is(.XeDialog, .popup.dialog)
+.toolbar-popup-button.selected > .dropdown-toggle .caret {
+  border-top-color: var(--oce-ui-text) !important;
 }
 
 
