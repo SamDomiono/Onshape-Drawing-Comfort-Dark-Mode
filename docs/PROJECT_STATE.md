@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-19 — final accepted Drawing dialog and Note-editor implementation closeout
 **Product authority:** HUMAN
-**Manifest version:** 0.2.0
+**Manifest version:** 0.3.0
 **Authoritative MAIN-world revision:** `renderer-rebind-main-1`
 **September 16 baseline MAIN revision:** `persistent-toggle-main-1`
 **Work-laptop accepted MAIN revision:** `renderer-rebind-main-1`
@@ -112,9 +112,9 @@ Current runtime SHA-256 values are:
 
 | File | SHA-256 |
 | --- | --- |
-| `manifest.json` | `AB7E5B4825158FB771185E8239B1E6C305AF665FA52E5536F262180F126B4A0C` |
-| `bridge.js` | `A702485616E824807EDFFAFFD0545DC45C1D05CF9E9AF75D7C5BDF745B4EF633` |
-| `theme.js` | `3F69580E104FF0E437AF746AED146D167A9D80D65A87A3ACAA17E2311FBF1AF7` |
+| `manifest.json` | `D09836E6D9CB16BF7D258AFEAB6D6C57F9AD2161CD385A293370A57AD02CBC53` |
+| `bridge.js` | `8C4D50357C9E0052A9F11854313259D81BFC471B2C146DC4058AFE7BFAEE9099` |
+| `theme.js` | `528E86C4F72D3F10747E1F6D2CE1ED128E422B90642383EDA8EF53178172C00A` |
 | `drawing-ui.css` | `378D9E1F53C66BB3094D606191F5C4D063954B1B7B0A8D5274F6D6A8E711D2E4` |
 | `popup.html` | `F8FF29DCC7FAA11BF86825CE5C3B1BE4762562FAB99F19C41580FD6DFC2F02D8` |
 | `popup.css` | `69A020C198476ADE5AA606FCB35AEFF0F2E0775EA3BB279986981F78AE4B39B3` |
@@ -126,7 +126,7 @@ Current runtime SHA-256 values are:
 | `icons/icon-master.svg` | `BF13AA3C45CE2B6D01970745DA034C86AA03B544E0858148EEC16BE32408F524` |
 | `icons/icon-small.svg` | `D1E1B0395E091D95110DE81A4F9CDFBF3BDD42F0EFD0BC29E39AF2B7D5AA2D4F` |
 
-The manifest is MV3 version `0.2.0` with `minimum_chrome_version` 111. Its `version_name` (`0.2.0-title-block-prototype`) and description (`Experimental Note editor.`) are historical packaging labels; they do not describe the final accepted feature boundary and remain a nonblocking future metadata cleanup item rather than an implementation defect.
+The current release identity is `0.3.0` in the manifest `version` and `version_name` fields and in the diagnostic `VERSION` constants reported by `bridge.js` and `theme.js`. The manifest remains MV3 with `minimum_chrome_version` 111. Its description (`Experimental Note editor.`) is a historical packaging label and remains unchanged in this release-identity-only update.
 
 ## Historical verified baseline — before Drawing UI and On/Off toggle
 
@@ -185,7 +185,7 @@ The popup/icon documentation reconciliation was subsequently committed at `6d4cb
 
 ## Manifest and execution architecture
 
-The extension is Manifest V3 version 0.2.0 with minimum Chrome 111. It requests the `storage` permission, declares a toolbar action with `popup.html`, provides 16/32/48/128 px icons, and loads two scripts at `document_idle` in matching Onshape production drawing-editor frames with `all_frames: true`:
+The extension is Manifest V3 version 0.3.0 with minimum Chrome 111. It requests the `storage` permission, declares a toolbar action with `popup.html`, provides 16/32/48/128 px icons, and loads two scripts at `document_idle` in matching Onshape production drawing-editor frames with `all_frames: true`:
 
 ```text
 bridge.js → ISOLATED world

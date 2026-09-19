@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const VERSION = "0.2.0";
+  const VERSION = "0.3.0";
   const REVISION = "renderer-rebind-main-1";
   const KEY = "__onshapeComfortExtension01";
   const CHANNEL = "onshape-comfort-extension";
